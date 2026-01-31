@@ -73,15 +73,15 @@ const FloorIndicator = ({ currentFloor, totalFloors, floorName }: FloorIndicator
           </motion.div>
         </AnimatePresence>
         
-        {/* Progress Dots */}
-        <div className="flex flex-col items-center gap-2 mt-4 pt-4 border-t border-border">
+        {/* Progress Dots - now 7 floors */}
+        <div className="flex flex-col items-center gap-1.5 mt-4 pt-4 border-t border-border">
           {Array.from({ length: totalFloors }).map((_, index) => {
             const floorNum = totalFloors - index;
             return (
               <motion.div
                 key={floorNum}
                 animate={{
-                  scale: floorNum === currentFloor ? 1.3 : 1,
+                  scale: floorNum === currentFloor ? 1.4 : 1,
                   backgroundColor: floorNum === currentFloor ? 'hsl(var(--primary))' : 'hsl(var(--muted))',
                 }}
                 transition={{ duration: 0.2 }}
