@@ -55,80 +55,93 @@ const ConstructionPiece = ({
   return <group ref={group}>{children}</group>;
 };
 
-// --- FEATHER SEGMENT (Diamond shape) ---
-const FeatherSegment = ({ 
+// --- FEATHER FACET (Single polygon) ---
+const FeatherFacet = ({ 
   color, 
   position, 
   rotation, 
-  scale 
+  scale,
+  flipX = false
 }: { 
   color: string; 
   position: [number, number, number]; 
   rotation: [number, number, number]; 
   scale: [number, number, number];
+  flipX?: boolean;
 }) => {
   return (
-    <group position={position} rotation={rotation}>
-      {/* Top cone */}
-      <mesh castShadow scale={scale}>
-        <coneGeometry args={[0.6, 1.2, 4]} />
-        <meshPhysicalMaterial 
-          color={color} 
-          roughness={0.2} 
-          metalness={0.1} 
-          clearcoat={0.8}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-      {/* Bottom cone (inverted) */}
-      <mesh castShadow scale={scale} rotation={[Math.PI, 0, 0]} position={[0, -1.2, 0]}>
-        <coneGeometry args={[0.6, 1.2, 4]} />
-        <meshPhysicalMaterial 
-          color={color} 
-          roughness={0.2} 
-          metalness={0.1} 
-          clearcoat={0.8}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-    </group>
+    <mesh 
+      castShadow 
+      position={position} 
+      rotation={rotation}
+      scale={[flipX ? -scale[0] : scale[0], scale[1], scale[2]]}
+    >
+      <coneGeometry args={[0.5, 1.0, 3]} />
+      <meshStandardMaterial 
+        color={color} 
+        roughness={0.35} 
+        metalness={0.0}
+        flatShading={true}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
   );
 };
 
-// --- PART 1: THE FEATHER (Left) ---
+// --- PART 1: THE FEATHER (Left) - Low-poly style matching logo ---
 const Feather = () => {
-  // Accurate colors from logo: magenta -> cyan -> teal -> orange -> red
-  const segments = [
-    { color: '#c850c0', pos: [0.3, 2.4, 0], rot: [0, 0, 0.4], scale: [0.55, 0.75, 0.18] },   // Magenta tip
-    { color: '#36d1dc', pos: [0.05, 1.85, 0], rot: [0, 0, 0.28], scale: [0.7, 0.9, 0.18] },  // Cyan
-    { color: '#20b2aa', pos: [-0.15, 1.3, 0], rot: [0, 0, 0.15], scale: [0.8, 1.0, 0.18] },  // Teal
-    { color: '#48c9b0', pos: [-0.25, 0.75, 0], rot: [0, 0, 0], scale: [0.85, 1.1, 0.18] },   // Light teal (largest)
-    { color: '#f39c12', pos: [-0.2, 0.2, 0], rot: [0, 0, -0.12], scale: [0.8, 1.0, 0.18] },  // Orange
-    { color: '#e74c3c', pos: [-0.05, -0.35, 0], rot: [0, 0, -0.25], scale: [0.7, 0.85, 0.18] }, // Red
-    { color: '#c0392b', pos: [0.15, -0.9, 0], rot: [0, 0, -0.38], scale: [0.5, 0.65, 0.18] }, // Dark red tip
+  // Facets arranged to create overlapping polygon feather effect
+  // Each row has left and right facets that overlap
+  const facets = [
+    // Top - Magenta/Pink
+    { color: '#e946ef', pos: [0.3, 2.4, 0], rot: [0, 0, 0.6], scale: [0.5, 0.6, 0.15] },
+    { color: '#d946ef', pos: [0.5, 2.1, 0], rot: [0, 0, 0.4], scale: [0.45, 0.5, 0.15] },
+    
+    // Upper - Cyan
+    { color: '#06b6d4', pos: [0.0, 1.9, 0], rot: [0, 0, 0.4], scale: [0.6, 0.7, 0.15] },
+    { color: '#22d3ee', pos: [0.25, 1.55, 0], rot: [0, 0, 0.25], scale: [0.55, 0.65, 0.15] },
+    { color: '#0ea5e9', pos: [-0.1, 1.5, 0], rot: [0, 0, 0.35], scale: [0.5, 0.55, 0.15] },
+    
+    // Middle - Teal/Turquoise  
+    { color: '#14b8a6', pos: [-0.2, 1.1, 0], rot: [0, 0, 0.2], scale: [0.65, 0.75, 0.15] },
+    { color: '#2dd4bf', pos: [0.05, 0.9, 0], rot: [0, 0, 0.1], scale: [0.6, 0.7, 0.15] },
+    { color: '#5eead4', pos: [-0.35, 0.65, 0], rot: [0, 0, 0.15], scale: [0.55, 0.6, 0.15] },
+    
+    // Lower middle - Orange/Yellow
+    { color: '#fbbf24', pos: [-0.25, 0.35, 0], rot: [0, 0, 0], scale: [0.7, 0.8, 0.15] },
+    { color: '#f97316', pos: [0.0, 0.05, 0], rot: [0, 0, -0.1], scale: [0.65, 0.75, 0.15] },
+    { color: '#fb923c', pos: [-0.35, -0.15, 0], rot: [0, 0, 0.05], scale: [0.55, 0.6, 0.15] },
+    
+    // Bottom - Red
+    { color: '#ef4444', pos: [-0.1, -0.5, 0], rot: [0, 0, -0.2], scale: [0.6, 0.7, 0.15] },
+    { color: '#f87171', pos: [0.15, -0.85, 0], rot: [0, 0, -0.3], scale: [0.5, 0.6, 0.15] },
+    { color: '#dc2626', pos: [-0.15, -1.0, 0], rot: [0, 0, -0.15], scale: [0.45, 0.5, 0.15] },
+    
+    // Tip - Dark red
+    { color: '#b91c1c', pos: [0.25, -1.4, 0], rot: [0, 0, -0.45], scale: [0.4, 0.45, 0.15] },
   ];
 
   return (
-    <group position={[-2.6, 0.1, 0]}>
-      {segments.map((seg, i) => (
+    <group position={[-2.5, 0.2, 0]}>
+      {facets.map((facet, i) => (
         <ConstructionPiece 
           key={i} 
-          delay={0.1 + i * 0.12} 
-          from={[-4, (3 - i) * 1.5, 0]} 
+          delay={0.08 + i * 0.06} 
+          from={[-3 - Math.random(), (2 - i * 0.3) + Math.random() * 2, 0]} 
           scaleAnim
         >
-          <FeatherSegment
-            color={seg.color}
-            position={seg.pos as [number, number, number]}
-            rotation={seg.rot as [number, number, number]}
-            scale={seg.scale as [number, number, number]}
+          <FeatherFacet
+            color={facet.color}
+            position={facet.pos as [number, number, number]}
+            rotation={facet.rot as [number, number, number]}
+            scale={facet.scale as [number, number, number]}
           />
         </ConstructionPiece>
       ))}
       {/* Quill stem */}
       <ConstructionPiece delay={1.0} from={[0, -6, 0]}>
-        <mesh position={[0.25, -1.6, 0]} rotation={[0, 0, -0.2]}>
-          <cylinderGeometry args={[0.05, 0.025, 1.4, 8]} />
+        <mesh position={[0.35, -1.9, 0]} rotation={[0, 0, -0.25]}>
+          <cylinderGeometry args={[0.04, 0.02, 1.2, 8]} />
           <meshStandardMaterial color="#ffffff" />
         </mesh>
       </ConstructionPiece>
