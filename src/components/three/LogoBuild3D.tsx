@@ -99,17 +99,17 @@ const FeatherSegment = ({
 const Feather = () => {
   // Accurate colors from logo: magenta -> cyan -> teal -> orange -> red
   const segments = [
-    { color: '#c850c0', pos: [0.15, 2.8, 0], rot: [0, 0, 0.35], scale: [0.5, 0.6, 0.15] }, // Magenta tip
-    { color: '#36d1dc', pos: [-0.1, 2.0, 0], rot: [0, 0, 0.2], scale: [0.6, 0.7, 0.15] },  // Cyan
-    { color: '#20b2aa', pos: [-0.25, 1.2, 0], rot: [0, 0, 0.1], scale: [0.7, 0.8, 0.15] }, // Teal
-    { color: '#48c9b0', pos: [-0.3, 0.4, 0], rot: [0, 0, 0], scale: [0.75, 0.85, 0.15] },  // Light teal
-    { color: '#f39c12', pos: [-0.25, -0.5, 0], rot: [0, 0, -0.1], scale: [0.7, 0.8, 0.15] }, // Orange
-    { color: '#e74c3c', pos: [-0.1, -1.3, 0], rot: [0, 0, -0.2], scale: [0.6, 0.7, 0.15] }, // Red
-    { color: '#c0392b', pos: [0.1, -2.0, 0], rot: [0, 0, -0.3], scale: [0.45, 0.55, 0.15] }, // Dark red
+    { color: '#c850c0', pos: [0.3, 2.4, 0], rot: [0, 0, 0.4], scale: [0.55, 0.75, 0.18] },   // Magenta tip
+    { color: '#36d1dc', pos: [0.05, 1.85, 0], rot: [0, 0, 0.28], scale: [0.7, 0.9, 0.18] },  // Cyan
+    { color: '#20b2aa', pos: [-0.15, 1.3, 0], rot: [0, 0, 0.15], scale: [0.8, 1.0, 0.18] },  // Teal
+    { color: '#48c9b0', pos: [-0.25, 0.75, 0], rot: [0, 0, 0], scale: [0.85, 1.1, 0.18] },   // Light teal (largest)
+    { color: '#f39c12', pos: [-0.2, 0.2, 0], rot: [0, 0, -0.12], scale: [0.8, 1.0, 0.18] },  // Orange
+    { color: '#e74c3c', pos: [-0.05, -0.35, 0], rot: [0, 0, -0.25], scale: [0.7, 0.85, 0.18] }, // Red
+    { color: '#c0392b', pos: [0.15, -0.9, 0], rot: [0, 0, -0.38], scale: [0.5, 0.65, 0.18] }, // Dark red tip
   ];
 
   return (
-    <group position={[-2.8, 0.3, 0]}>
+    <group position={[-2.6, 0.1, 0]}>
       {segments.map((seg, i) => (
         <ConstructionPiece 
           key={i} 
@@ -127,8 +127,8 @@ const Feather = () => {
       ))}
       {/* Quill stem */}
       <ConstructionPiece delay={1.0} from={[0, -6, 0]}>
-        <mesh position={[0.2, -2.8, 0]} rotation={[0, 0, -0.15]}>
-          <cylinderGeometry args={[0.04, 0.02, 1.8, 8]} />
+        <mesh position={[0.25, -1.6, 0]} rotation={[0, 0, -0.2]}>
+          <cylinderGeometry args={[0.05, 0.025, 1.4, 8]} />
           <meshStandardMaterial color="#ffffff" />
         </mesh>
       </ConstructionPiece>
