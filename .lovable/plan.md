@@ -1,149 +1,67 @@
 
+# Refine Feather Segments for Faceted Crystal Look
 
-# Upgraded 3D Construction Building Component
+## Current Issue
+The feather segments are spaced too far apart vertically, creating visible gaps between the diamond shapes. In the original logo, the feather has a continuous, faceted crystal appearance where segments overlap and blend into each other.
 
-## Overview
-Replace the current `ConstructionBuilding.tsx` with an enhanced procedural mini-building animation that features a realistic construction sequence (foundation → columns → floors → glass facade → roof), then pauses briefly and restarts in an infinite loop.
+## Proposed Changes
+
+### 1. Adjust Segment Positions (Tighter Vertical Spacing)
+Reduce the vertical distance between segments from ~0.7-0.8 units to ~0.55-0.6 units so the diamond shapes visually overlap.
+
+**Current positions:** 2.8, 2.0, 1.2, 0.4, -0.5, -1.3, -2.0  
+**New positions:** 2.4, 1.85, 1.3, 0.75, 0.2, -0.35, -0.9 (tighter spacing)
+
+### 2. Increase Segment Scales
+Make the diamonds taller (larger Y scale) so they overlap more when positioned closer together.
+
+**Current scales (Y):** 0.6, 0.7, 0.8, 0.85, 0.8, 0.7, 0.55  
+**New scales (Y):** 0.75, 0.9, 1.0, 1.1, 1.0, 0.85, 0.65
+
+### 3. Refine the Curved Spine
+Adjust the X positions and rotations to create a smoother S-curve that matches the original logo's feather silhouette.
+
+### 4. Adjust Quill Stem Position
+Move the quill stem to align with the new, more compact feather shape.
 
 ---
 
-## Key Improvements Over Current Implementation
+## Technical Details
 
-| Aspect | Current | New |
-|--------|---------|-----|
-| Animation Style | Floors rise/fall continuously | Sequential construction phases |
-| Materials | Basic MeshStandardMaterial | Physical materials (glass transmission, emissive orange) |
-| Lighting | Ambient + directional | Environment HDR + multiple directional lights |
-| Construction Phases | Simple rise animation | Foundation → Floors → Glass → Roof sequence |
-| Loop Behavior | 8-second rise/fall cycle | 10-second full construction cycle with hold |
-| Realism | Functional | Premium with reflections, soft shadows |
+### File to Modify
+`src/components/three/LogoBuild3D.tsx`
 
----
+### Code Changes
 
-## Animation Timeline (10-second loop)
+**Update the segments array in the `Feather` component (lines 101-109):**
 
-```text
-Time (s)  │ 0.0     2.0     4.0     6.0     8.0     10.0
-          │  │       │       │       │       │       │
-Phase     │  Foundation ──► Floors ──► Glass ──► Roof/Hold ──► Reset
-Progress  │  0.00   0.15    0.55    0.85    0.95    1.00
+```typescript
+const segments = [
+  { color: '#c850c0', pos: [0.3, 2.4, 0], rot: [0, 0, 0.4], scale: [0.55, 0.75, 0.18] },   // Magenta tip
+  { color: '#36d1dc', pos: [0.05, 1.85, 0], rot: [0, 0, 0.28], scale: [0.7, 0.9, 0.18] },  // Cyan
+  { color: '#20b2aa', pos: [-0.15, 1.3, 0], rot: [0, 0, 0.15], scale: [0.8, 1.0, 0.18] },  // Teal
+  { color: '#48c9b0', pos: [-0.25, 0.75, 0], rot: [0, 0, 0], scale: [0.85, 1.1, 0.18] },   // Light teal (largest)
+  { color: '#f39c12', pos: [-0.2, 0.2, 0], rot: [0, 0, -0.12], scale: [0.8, 1.0, 0.18] },  // Orange
+  { color: '#e74c3c', pos: [-0.05, -0.35, 0], rot: [0, 0, -0.25], scale: [0.7, 0.85, 0.18] }, // Red
+  { color: '#c0392b', pos: [0.15, -0.9, 0], rot: [0, 0, -0.38], scale: [0.5, 0.65, 0.18] }, // Dark red tip
+];
 ```
 
-**Phase Details:**
-1. **0.00 - 0.15**: Foundation appears, plinth visible
-2. **0.15 - 0.55**: Floors rise sequentially from below
-3. **0.55 - 0.85**: Glass facade panels slide/fade in
-4. **0.85 - 0.95**: Roof scales into place
-5. **0.95 - 1.00**: Hold complete building briefly
-6. **Reset**: Loop restarts
-
----
-
-## Component Structure
-
-```text
-ConstructionBuilding3D (Container with Canvas)
-└── SceneBuilding (Main group with orbit animation)
-    ├── Ground Plinth (concrete base)
-    ├── BuildingCore
-    │   ├── Dark Core Column (center shaft)
-    │   ├── Floor Slabs × 7 (animated rise)
-    │   ├── Glass Panels × 14 (animated fade-in)
-    │   └── Roof Mesh (animated scale)
-    ├── Crane (orange tower crane with animated hook)
-    └── PerimeterRails (orange safety rails)
+**Update the feather group position (line 112):**
+```typescript
+<group position={[-2.6, 0.1, 0]}>
 ```
 
----
-
-## Materials Definition
-
-| Material | Color | Properties |
-|----------|-------|------------|
-| Concrete | `#e9eaec` | Rough, matte |
-| Dark Core | `#2b2f36` | Slight metalness |
-| Glass | `#cfe9ff` | Transmission, clearcoat, transparent |
-| Orange | `#ff7a18` | Emissive glow, metallic |
-| Steel | `#b9c0c8` | High metalness |
-
----
-
-## Files to Modify
-
-| File | Action | Description |
-|------|--------|-------------|
-| `src/components/three/ConstructionBuilding.tsx` | **Replace** | New procedural building with phased construction animation |
-| `src/components/floors/HeroFloor.tsx` | **Update** | Increase container height to 420px for better model visibility |
-
----
-
-## Technical Implementation Details
-
-### Canvas Configuration
-- Device pixel ratio: `[1, 2]` for crisp rendering
-- Camera position: `[3.2, 2.2, 5.2]` with 40° FOV
-- Shadows enabled with 2048×2048 shadow maps
-- Alpha/transparent background for white hero
-
-### Lighting Setup
-- Ambient light at 0.55 intensity
-- Main directional light from `[6, 8, 4]` with shadows
-- Fill directional light from `[-6, 4, -4]`
-- Environment preset: "city" for realistic reflections
-
-### Animation System
-- Uses `useFrame` hook for per-frame updates
-- Shared progress value via `group.userData.progress`
-- Smooth easing with cubic smoothstep function
-- Crane hook has independent swing/bob animation
-
-### Orange Construction Accents
-- Crane tower and boom: Orange with emissive glow
-- Crane hook: Orange with glow effect
-- Perimeter safety rails: Orange
-- All use consistent `#ff7a18` with `emissive: #ff5a00`
-
----
-
-## Hero Floor Updates
-
-Current height: `h-[320px] sm:h-[380px]`
-New height: `h-[380px] sm:h-[420px]`
-
-This gives the 3D model more vertical space for the construction animation to be fully visible, including the crane.
+**Update the quill stem position (line 130):**
+```typescript
+<mesh position={[0.25, -1.6, 0]} rotation={[0, 0, -0.2]}>
+  <cylinderGeometry args={[0.05, 0.025, 1.4, 8]} />
+```
 
 ---
 
 ## Visual Result
-
-```text
-┌─────────────────────────────────────────────────┐
-│                  WHITE BACKGROUND               │
-│                                                 │
-│              ┌─────────────────┐               │
-│         🏗️   │  ▓▓▓▓▓▓▓▓▓▓▓▓  │   (Crane)    │
-│         │    │  ░░░░░░░░░░░░  │  ← Glass     │
-│         │    │  ▓▓▓▓▓▓▓▓▓▓▓▓  │              │
-│         │    │  ░░░░░░░░░░░░  │  ← Floors    │
-│         │    │  ▓▓▓▓▓▓▓▓▓▓▓▓  │              │
-│         ▼    └─────────────────┘              │
-│              ════════════════════ ← Rails     │
-│              ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ ← Foundation │
-│              ~~~~~~~~ (soft shadow) ~~~~~~~   │
-│                                                 │
-│    "Premium Architectural Design &              │
-│         Engineering Solutions"                  │
-│                                                 │
-│    [Explore Services]  [View Projects]          │
-└─────────────────────────────────────────────────┘
-```
-
----
-
-## No New Dependencies Required
-
-The project already has:
-- `@react-three/fiber`: ^8.18.0 ✓
-- `@react-three/drei`: ^9.122.0 ✓
-- `three`: ^0.160.1 ✓
-
+- Segments will overlap by approximately 30-40%, creating a continuous faceted crystal appearance
+- The curved S-shape of the feather will be more pronounced
+- The overall feather will be slightly more compact but with larger individual facets
+- The diamond segments will catch light in a more cohesive way, resembling polished gemstone facets
