@@ -19,7 +19,7 @@ export default function LogoBuild3D({
     <div className={className}>
       <Canvas shadows dpr={[1, 2]} gl={{ antialias: true, alpha: true }} camera={{ position: [0, 0.9, 5.0], fov: 38 }} style={{ background: 'transparent' }}>
 
-        {/* Lighting tuned for glossy but still “real” */}
+        {/* Lighting tuned for glossy but still "real" */}
         <ambientLight intensity={0.55} />
         <directionalLight
           castShadow
@@ -107,9 +107,8 @@ function LogoExtrudedAnimated({ svgUrl }: { svgUrl: string }) {
     const scale = 2.4 / maxDim; // fits hero nicely
     root.scale.setScalar(scale);
 
-    // Give it a slight 3D tilt like the original “badge”
-    root.rotation.x = -0.14;
-    root.rotation.y = 0.18;
+    // Flip Y to correct SVG coordinate system (SVG Y is inverted in 3D)
+    root.scale.y *= -1;
 
     // Sort meshes by build order
     meshes.sort((a, b) => a.order - b.order);
@@ -122,8 +121,8 @@ function LogoExtrudedAnimated({ svgUrl }: { svgUrl: string }) {
     const g = groupRef.current;
     if (!g) return;
 
-    // Gentle showroom rotation
-    g.rotation.y = 0.18 + Math.sin(state.clock.elapsedTime * 0.25) * 0.12;
+    // Keep upright, gentle rotation only
+    g.rotation.y = Math.sin(state.clock.elapsedTime * 0.25) * 0.12;
 
     const duration = 6.8; // build cycle
     const hold = 0.6; // hold when finished
@@ -162,11 +161,6 @@ function LogoExtrudedAnimated({ svgUrl }: { svgUrl: string }) {
       const mat = mesh.material as THREE.MeshStandardMaterial;
       mat.transparent = true;
       mat.opacity = THREE.MathUtils.lerp(0, 1, eased);
-
-      // Quick “shine” near the end of build for realism
-      const shine = smoothstep(buildP, 0.82, 0.98);
-      mat.emissive = new THREE.Color("#ffffff");
-      mat.emissiveIntensity = 0.08 * shine;
     });
   });
 
@@ -248,9 +242,4 @@ function pickBestColor(fill: string, stroke: string, idx: number) {
 
 function easeOutCubic(t: number) {
   return 1 - Math.pow(1 - t, 3);
-}
-
-function smoothstep(x: number, a: number, b: number) {
-  const t = THREE.MathUtils.clamp((x - a) / (b - a), 0, 1);
-  return t * t * (3 - 2 * t);
 }
