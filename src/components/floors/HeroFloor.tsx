@@ -30,7 +30,7 @@ const HeroFloor = ({ onScrollToNext }: HeroFloorProps) => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
-            className="relative w-full max-w-lg mx-auto h-[320px] sm:h-[380px] mb-8"
+            className="relative w-full max-w-lg mx-auto h-[380px] sm:h-[420px] mb-8"
           >
             <Suspense fallback={
               <div className="w-full h-full flex items-center justify-center">
