@@ -55,7 +55,7 @@ const ConstructionPiece = ({
   return <group ref={group}>{children}</group>;
 };
 
-// --- FEATHER FACET (Flat triangle matching logo) ---
+// --- FEATHER FACET (Flat polygon matching SVG exactly) ---
 const FeatherFacet = ({ 
   color, 
   position, 
@@ -69,56 +69,55 @@ const FeatherFacet = ({
 }) => {
   return (
     <group position={position} rotation={rotation}>
-      {/* Flat triangle using cone with 3 radial segments */}
-      <mesh castShadow scale={scale}>
-        <coneGeometry args={[0.5, 1.0, 3]} />
+      {/* Flat rhombus/diamond shape using thin box rotated 45 degrees */}
+      <mesh castShadow scale={scale} rotation={[0, 0, Math.PI / 4]}>
+        <boxGeometry args={[1, 1, 0.12]} />
         <meshStandardMaterial 
           color={color} 
-          roughness={0.35} 
-          metalness={0.0}
-          flatShading={true}
-          side={THREE.DoubleSide}
+          roughness={0.3} 
+          metalness={0.1}
         />
       </mesh>
     </group>
   );
 };
 
-// --- PART 1: THE FEATHER (Left) - Flat low-poly triangles in S-curve ---
+// --- PART 1: THE FEATHER (Left) - Diamond facets matching SVG S-curve ---
 const Feather = () => {
-  // Flat triangular facets arranged in S-curve matching the logo
+  // Exact colors from SVG: #84508C (magenta), #299DB5/#2EA0A9 (cyan), 
+  // #218694/#247C8E/#53928C (teal), #E88A35/#E19238 (orange), #E74326/#DD6C34/#DB5237 (red)
   const facets = [
-    // Top tip - Magenta/Pink
-    { color: '#e040fb', pos: [0.4, 2.5, 0], rot: [0, 0, 0.6], scale: [0.3, 0.5, 0.08] },
-    { color: '#d946ef', pos: [0.15, 2.15, 0], rot: [0, 0, 0.4], scale: [0.38, 0.6, 0.08] },
+    // Top tip - Magenta/Purple (from SVG #84508C)
+    { color: '#84508C', pos: [0.35, 2.6, 0], rot: [0, 0, 0.55], scale: [0.28, 0.28, 1] },
+    { color: '#9B5BA3', pos: [0.08, 2.25, 0], rot: [0, 0, 0.35], scale: [0.35, 0.35, 1] },
     
-    // Upper section - Cyan
-    { color: '#22d3ee', pos: [-0.1, 1.8, 0], rot: [0, 0, 0.25], scale: [0.45, 0.7, 0.08] },
-    { color: '#06b6d4', pos: [0.12, 1.45, 0], rot: [0, 0, 0.15], scale: [0.42, 0.65, 0.08] },
-    { color: '#22d3ee', pos: [-0.25, 1.35, 0], rot: [0, 0, 0.3], scale: [0.38, 0.55, 0.08] },
+    // Upper section - Cyan (from SVG #299DB5, #2EA0A9)
+    { color: '#299DB5', pos: [-0.18, 1.9, 0], rot: [0, 0, 0.2], scale: [0.42, 0.42, 1] },
+    { color: '#2EA0A9', pos: [0.1, 1.55, 0], rot: [0, 0, 0.08], scale: [0.45, 0.45, 1] },
+    { color: '#299DB5', pos: [-0.28, 1.25, 0], rot: [0, 0, 0.18], scale: [0.40, 0.40, 1] },
     
-    // Middle section - Teal (widest part)
-    { color: '#14b8a6', pos: [-0.35, 0.95, 0], rot: [0, 0, 0.12], scale: [0.52, 0.75, 0.08] },
-    { color: '#2dd4bf', pos: [0.0, 0.7, 0], rot: [0, 0, 0.05], scale: [0.48, 0.7, 0.08] },
-    { color: '#14b8a6', pos: [-0.38, 0.45, 0], rot: [0, 0, 0.08], scale: [0.45, 0.6, 0.08] },
-    { color: '#2dd4bf', pos: [-0.1, 0.2, 0], rot: [0, 0, 0.0], scale: [0.5, 0.68, 0.08] },
+    // Middle section - Teal (from SVG #218694, #247C8E, #53928C)
+    { color: '#218694', pos: [-0.35, 0.9, 0], rot: [0, 0, 0.05], scale: [0.50, 0.50, 1] },
+    { color: '#247C8E', pos: [0.0, 0.55, 0], rot: [0, 0, -0.02], scale: [0.52, 0.52, 1] },
+    { color: '#53928C', pos: [-0.38, 0.2, 0], rot: [0, 0, 0.0], scale: [0.48, 0.48, 1] },
+    { color: '#218694', pos: [-0.05, -0.15, 0], rot: [0, 0, -0.05], scale: [0.50, 0.50, 1] },
     
-    // Lower section - Orange/Yellow
-    { color: '#f59e0b', pos: [-0.28, -0.15, 0], rot: [0, 0, -0.08], scale: [0.52, 0.7, 0.08] },
-    { color: '#fbbf24', pos: [0.05, -0.45, 0], rot: [0, 0, -0.15], scale: [0.48, 0.65, 0.08] },
-    { color: '#f59e0b', pos: [-0.2, -0.75, 0], rot: [0, 0, -0.1], scale: [0.44, 0.58, 0.08] },
+    // Lower section - Orange (from SVG #E88A35, #E19238)
+    { color: '#E88A35', pos: [-0.3, -0.5, 0], rot: [0, 0, -0.1], scale: [0.48, 0.48, 1] },
+    { color: '#E19238', pos: [0.02, -0.85, 0], rot: [0, 0, -0.18], scale: [0.45, 0.45, 1] },
+    { color: '#E88A35', pos: [-0.22, -1.15, 0], rot: [0, 0, -0.12], scale: [0.42, 0.42, 1] },
     
-    // Bottom section - Red
-    { color: '#ef4444', pos: [0.1, -1.05, 0], rot: [0, 0, -0.22], scale: [0.48, 0.62, 0.08] },
-    { color: '#dc2626', pos: [-0.08, -1.35, 0], rot: [0, 0, -0.28], scale: [0.42, 0.55, 0.08] },
-    { color: '#ef4444', pos: [0.18, -1.65, 0], rot: [0, 0, -0.38], scale: [0.35, 0.48, 0.08] },
+    // Bottom section - Red (from SVG #E74326, #DD6C34, #DB5237)
+    { color: '#E74326', pos: [0.08, -1.45, 0], rot: [0, 0, -0.25], scale: [0.40, 0.40, 1] },
+    { color: '#DD6C34', pos: [-0.1, -1.75, 0], rot: [0, 0, -0.32], scale: [0.35, 0.35, 1] },
+    { color: '#DB5237', pos: [0.18, -2.0, 0], rot: [0, 0, -0.42], scale: [0.30, 0.30, 1] },
     
-    // Tip - Dark red
-    { color: '#b91c1c', pos: [0.38, -1.95, 0], rot: [0, 0, -0.5], scale: [0.28, 0.4, 0.08] },
+    // Tip - Dark red (from SVG #E16833)
+    { color: '#E16833', pos: [0.42, -2.25, 0], rot: [0, 0, -0.55], scale: [0.22, 0.22, 1] },
   ];
 
   return (
-    <group position={[-2.4, 0.1, 0]}>
+    <group position={[-2.2, 0.2, 0]}>
       {facets.map((facet, i) => (
         <ConstructionPiece 
           key={i} 
@@ -136,8 +135,8 @@ const Feather = () => {
       ))}
       {/* Quill stem - white curved line */}
       <ConstructionPiece delay={0.85} from={[0, -5, 0]}>
-        <mesh position={[0.55, -2.4, 0]} rotation={[0, 0, -0.3]}>
-          <cylinderGeometry args={[0.03, 0.012, 1.1, 8]} />
+        <mesh position={[0.6, -2.65, 0]} rotation={[0, 0, -0.35]}>
+          <cylinderGeometry args={[0.025, 0.01, 1.0, 8]} />
           <meshStandardMaterial color="#ffffff" />
         </mesh>
       </ConstructionPiece>
@@ -145,54 +144,54 @@ const Feather = () => {
   );
 };
 
-// --- PART 2: THE ORANGE BUILDING (Center) - Smooth tapered tower ---
+// --- PART 2: THE ORANGE BUILDING (Center) - Smooth tapered tower matching SVG ---
 const OrangeBuilding = () => {
-  // Smoother gradient segments with overlapping heights
+  // Colors from SVG: #E16833, #E88A35, #E19238 - orange gradient
   const segments = [
-    { y: -2.0, w: 1.35, h: 1.0, color: '#ea580c' },
-    { y: -1.1, w: 1.28, h: 0.9, color: '#f97316' },
-    { y: -0.3, w: 1.2, h: 0.8, color: '#fb923c' },
-    { y: 0.4, w: 1.1, h: 0.7, color: '#fdba74' },
-    { y: 1.0, w: 1.0, h: 0.6, color: '#fbbf24' },
-    { y: 1.5, w: 0.88, h: 0.5, color: '#fcd34d' },
-    { y: 1.95, w: 0.7, h: 0.4, color: '#fde68a' },
+    { y: -2.1, w: 1.4, h: 0.95, color: '#C65A2C' },   // Dark orange base
+    { y: -1.2, w: 1.32, h: 0.85, color: '#E16833' },  // From SVG
+    { y: -0.4, w: 1.22, h: 0.75, color: '#E88A35' },  // From SVG
+    { y: 0.3, w: 1.12, h: 0.65, color: '#E19238' },   // From SVG
+    { y: 0.9, w: 1.0, h: 0.55, color: '#F0A040' },    // Light orange
+    { y: 1.4, w: 0.85, h: 0.45, color: '#F5B050' },   // Yellow-orange
+    { y: 1.8, w: 0.68, h: 0.35, color: '#FAC060' },   // Light yellow
   ];
 
   return (
-    <group position={[0, 0, 0]}>
+    <group position={[0.1, 0, 0]}>
       {/* Main building body - smooth tapered segments */}
       <ConstructionPiece delay={0.3} from={[0, 8, 0]}>
         {segments.map((seg, i) => (
           <mesh key={i} castShadow position={[0, seg.y, 0]}>
-            <boxGeometry args={[seg.w, seg.h, 0.45]} />
-            <meshStandardMaterial color={seg.color} roughness={0.3} />
+            <boxGeometry args={[seg.w, seg.h, 0.4]} />
+            <meshStandardMaterial color={seg.color} roughness={0.25} />
           </mesh>
         ))}
-        {/* Stepped crown top */}
-        <mesh castShadow position={[0, 2.35, 0]}>
-          <boxGeometry args={[0.5, 0.35, 0.35]} />
-          <meshStandardMaterial color="#fef3c7" roughness={0.3} />
+        {/* Stepped crown top - matching SVG notch */}
+        <mesh castShadow position={[0, 2.15, 0]}>
+          <boxGeometry args={[0.48, 0.3, 0.32]} />
+          <meshStandardMaterial color="#FFD070" roughness={0.25} />
         </mesh>
-        <mesh castShadow position={[0, 2.65, 0]}>
-          <boxGeometry args={[0.28, 0.25, 0.25]} />
-          <meshStandardMaterial color="#fffbeb" roughness={0.3} />
+        <mesh castShadow position={[0, 2.4, 0]}>
+          <boxGeometry args={[0.25, 0.2, 0.22]} />
+          <meshStandardMaterial color="#FFE090" roughness={0.25} />
         </mesh>
       </ConstructionPiece>
 
-      {/* White horizontal slots - evenly spaced */}
+      {/* White horizontal slots - evenly spaced stripes */}
       {[
-        { y: -2.35, w: 1.38 },
-        { y: -1.55, w: 1.32 },
-        { y: -0.75, w: 1.25 },
-        { y: 0.0, w: 1.18 },
-        { y: 0.65, w: 1.08 },
-        { y: 1.25, w: 0.95 },
-        { y: 1.72, w: 0.8 },
-        { y: 2.12, w: 0.6 },
+        { y: -2.45, w: 1.42 },
+        { y: -1.6, w: 1.35 },
+        { y: -0.8, w: 1.26 },
+        { y: -0.05, w: 1.16 },
+        { y: 0.6, w: 1.05 },
+        { y: 1.15, w: 0.92 },
+        { y: 1.6, w: 0.75 },
+        { y: 1.98, w: 0.55 },
       ].map((slot, i) => (
         <ConstructionPiece key={i} delay={0.55 + i * 0.05} from={[0, 0, 3]} scaleAnim>
-          <mesh position={[0, slot.y, 0.24]}>
-            <boxGeometry args={[slot.w, 0.1, 0.05]} />
+          <mesh position={[0, slot.y, 0.22]}>
+            <boxGeometry args={[slot.w, 0.08, 0.04]} />
             <meshStandardMaterial color="#ffffff" />
           </mesh>
         </ConstructionPiece>
@@ -201,60 +200,64 @@ const OrangeBuilding = () => {
   );
 };
 
-// --- PART 3: THE BLUE CURVED STRUCTURE (Right) - Connected arc system ---
+// --- PART 3: THE BLUE CURVED STRUCTURE (Right) - Connected arc system matching SVG ---
 const BlueTower = () => {
+  // Colors from SVG: #3B53A4, #4259A6, #435CA9, #3B53A1 (dark blue)
+  // #4A69B0, #455CA2, #5780BD, #557CBB (medium blue)
+  // #5F8DC7, #66A5D9 (light blue)
+  
   return (
-    <group position={[0.35, 0, 0]}>
+    <group position={[0.4, 0, 0]}>
       {/* Base structure with pillars */}
-      <group position={[0.9, -2.3, 0]}>
-        {/* Curved base connecting pillars */}
+      <group position={[0.8, -2.35, 0]}>
+        {/* Curved base connecting pillars - matching SVG curve */}
         <ConstructionPiece delay={0.12} from={[4, -3, 0]}>
-          <mesh position={[0.4, -0.55, 0]} rotation={[0, 0, 0]}>
-            <torusGeometry args={[1.1, 0.12, 8, 32, Math.PI * 0.48]} />
-            <meshStandardMaterial color="#1e3a8a" roughness={0.25} />
+          <mesh position={[0.35, -0.5, 0]} rotation={[0, 0, -0.1]}>
+            <torusGeometry args={[1.05, 0.1, 8, 32, Math.PI * 0.45]} />
+            <meshStandardMaterial color="#3B53A4" roughness={0.2} />
           </mesh>
         </ConstructionPiece>
         
-        {/* Vertical pillars - connected to base, increasing heights */}
+        {/* Vertical pillars - matching SVG proportions */}
         {[
-          { x: -0.5, h: 1.5 },
-          { x: -0.05, h: 1.9 },
-          { x: 0.4, h: 2.35 },
-          { x: 0.85, h: 2.8 },
-          { x: 1.3, h: 3.3 },
+          { x: -0.45, h: 1.4, color: '#4259A6' },
+          { x: -0.02, h: 1.85, color: '#435CA9' },
+          { x: 0.38, h: 2.3, color: '#4A69B0' },
+          { x: 0.78, h: 2.75, color: '#5780BD' },
+          { x: 1.18, h: 3.25, color: '#5F8DC7' },
         ].map((pillar, i) => (
           <ConstructionPiece key={i} delay={0.18 + i * 0.07} from={[3, -4, 0]}>
-            <mesh position={[pillar.x, pillar.h / 2 - 0.4, 0]} castShadow>
-              <boxGeometry args={[0.12, pillar.h, 0.12]} />
-              <meshStandardMaterial color="#2563eb" roughness={0.25} />
+            <mesh position={[pillar.x, pillar.h / 2 - 0.35, 0]} castShadow>
+              <boxGeometry args={[0.1, pillar.h, 0.1]} />
+              <meshStandardMaterial color={pillar.color} roughness={0.2} />
             </mesh>
           </ConstructionPiece>
         ))}
       </group>
 
-      {/* Curved arcs wrapping tightly around building - originating from behind */}
-      <group position={[-0.9, -0.3, -0.08]}>
+      {/* Curved arcs wrapping around building - matching SVG WiFi signal shape */}
+      <group position={[-0.85, -0.2, -0.05]}>
         {[
-          { radius: 1.9, tube: 0.13, color: '#1e3a8a', angle: Math.PI * 0.58, rotZ: -0.08, offsetY: 0 },
-          { radius: 2.35, tube: 0.11, color: '#1e40af', angle: Math.PI * 0.55, rotZ: -0.05, offsetY: 0.08 },
-          { radius: 2.8, tube: 0.10, color: '#2563eb', angle: Math.PI * 0.52, rotZ: -0.03, offsetY: 0.15 },
-          { radius: 3.25, tube: 0.09, color: '#3b82f6', angle: Math.PI * 0.50, rotZ: -0.01, offsetY: 0.22 },
+          { radius: 1.85, tube: 0.11, color: '#3B53A1', angle: Math.PI * 0.55, rotZ: -0.05, offsetX: 0, offsetY: 0 },
+          { radius: 2.3, tube: 0.10, color: '#455CA2', angle: Math.PI * 0.52, rotZ: -0.03, offsetX: 0.03, offsetY: 0.05 },
+          { radius: 2.75, tube: 0.09, color: '#557CBB', angle: Math.PI * 0.50, rotZ: -0.02, offsetX: 0.06, offsetY: 0.1 },
+          { radius: 3.2, tube: 0.08, color: '#66A5D9', angle: Math.PI * 0.48, rotZ: -0.01, offsetX: 0.09, offsetY: 0.15 },
         ].map((arc, i) => (
           <ConstructionPiece key={i} delay={0.95 + i * 0.1} from={[3, 3, 0]} scaleAnim>
-            <mesh rotation={[0, 0, arc.rotZ]} position={[0.05 * i, arc.offsetY, 0]}>
+            <mesh rotation={[0, 0, arc.rotZ]} position={[arc.offsetX, arc.offsetY, 0]}>
               <torusGeometry args={[arc.radius, arc.tube, 16, 48, arc.angle]} />
-              <meshStandardMaterial color={arc.color} roughness={0.25} />
+              <meshStandardMaterial color={arc.color} roughness={0.2} />
             </mesh>
           </ConstructionPiece>
         ))}
       </group>
 
-      {/* Top arc connector - tighter wrap */}
+      {/* Top arc connector - tighter wrap matching SVG */}
       <ConstructionPiece delay={1.4} from={[2, 4, 0]} scaleAnim>
-        <group position={[-1.1, 2.5, 0]}>
-          <mesh rotation={[0, 0, -0.15]}>
-            <torusGeometry args={[1.3, 0.12, 16, 32, Math.PI * 0.4]} />
-            <meshStandardMaterial color="#1e3a8a" roughness={0.25} />
+        <group position={[-1.0, 2.4, 0]}>
+          <mesh rotation={[0, 0, -0.12]}>
+            <torusGeometry args={[1.25, 0.1, 16, 32, Math.PI * 0.38]} />
+            <meshStandardMaterial color="#3B53A4" roughness={0.2} />
           </mesh>
         </group>
       </ConstructionPiece>
