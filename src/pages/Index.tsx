@@ -1,12 +1,12 @@
 import Navbar from '@/components/Navbar';
-import BuildingInterior from '@/components/BuildingInterior';
+import BuildingJourney from '@/components/BuildingJourney';
 import Footer from '@/components/Footer';
 
 const Index = () => {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background overflow-x-hidden">
       <Navbar />
-      <BuildingInterior />
+      <BuildingJourney />
       <Footer />
     </main>
   );
