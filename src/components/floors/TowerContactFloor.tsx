@@ -1,317 +1,273 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Send, MapPin, Phone, Mail, Clock, Building2, Sparkles } from 'lucide-react';
+import { useInView } from 'framer-motion';
+import { useRef, useState } from 'react';
+import { 
+  Phone, 
+  Mail, 
+  MapPin, 
+  Clock,
+  Send,
+  CheckCircle
+} from 'lucide-react';
+import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Textarea } from '../ui/textarea';
+import { Label } from '../ui/label';
 
 const contactInfo = [
-  { icon: MapPin, label: 'Visit Us', value: '123 Architecture Ave, Design District', floor: 45 },
-  { icon: Phone, label: 'Call Us', value: '+1 (555) 123-4567', floor: 35 },
-  { icon: Mail, label: 'Email Us', value: 'hello@creativetouch.studio', floor: 25 },
-  { icon: Clock, label: 'Working Hours', value: 'Mon - Fri: 9AM - 6PM', floor: 15 },
-];
-
-const projectTypes = [
-  'Residential',
-  'Commercial',
-  'Industrial',
-  'Interior Design',
-  'Renovation',
-  'Consultation',
+  {
+    icon: Phone,
+    label: 'Phone',
+    value: '+1 (555) 123-4567',
+    subtext: 'Mon-Fri 9am-6pm',
+  },
+  {
+    icon: Mail,
+    label: 'Email',
+    value: 'info@creativetouch.com',
+    subtext: 'We respond within 24hrs',
+  },
+  {
+    icon: MapPin,
+    label: 'Office',
+    value: '123 Architecture Lane',
+    subtext: 'New York, NY 10001',
+  },
+  {
+    icon: Clock,
+    label: 'Hours',
+    value: 'Monday - Friday',
+    subtext: '9:00 AM - 6:00 PM',
+  },
 ];
 
 const TowerContactFloor = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    projectType: '',
-    message: '',
-  });
-  const [focusedField, setFocusedField] = useState<string | null>(null);
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    setSubmitted(true);
+    setTimeout(() => setSubmitted(false), 3000);
   };
 
   return (
-    <div 
-      id="contact"
-      className="relative min-h-screen overflow-hidden"
-      style={{
-        background: `
-          linear-gradient(180deg, 
-            hsl(var(--muted) / 0.2) 0%, 
-            hsl(220 20% 14%) 30%,
-            hsl(220 25% 10%) 60%,
-            hsl(220 30% 8%) 100%
-          )
-        `
-      }}
+    <section 
+      id="contact" 
+      ref={ref}
+      className="relative py-20 lg:py-28 overflow-hidden"
     >
-      {/* Tower skyline background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* City lights effect */}
-        <div className="absolute inset-0">
-          {[...Array(40)].map((_, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0.2, 0.8, 0.2] }}
-              transition={{
-                duration: 2 + Math.random() * 3,
-                delay: Math.random() * 2,
-                repeat: Infinity,
-              }}
-              className="absolute w-1 h-1 bg-primary rounded-full"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${40 + Math.random() * 50}%`,
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Abstract tower silhouettes */}
-        <svg className="absolute bottom-0 left-0 w-full h-3/4 opacity-20" preserveAspectRatio="none" viewBox="0 0 1200 600">
-          <defs>
-            <linearGradient id="towerGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="hsl(var(--secondary))" stopOpacity="0.1" />
-            </linearGradient>
-          </defs>
-          {/* Tower shapes */}
-          <rect x="50" y="100" width="80" height="500" fill="url(#towerGradient)" rx="4" />
-          <rect x="180" y="200" width="60" height="400" fill="url(#towerGradient)" rx="4" />
-          <rect x="280" y="50" width="100" height="550" fill="url(#towerGradient)" rx="4" />
-          <rect x="420" y="150" width="70" height="450" fill="url(#towerGradient)" rx="4" />
-          <rect x="540" y="80" width="90" height="520" fill="url(#towerGradient)" rx="4" />
-          <rect x="680" y="180" width="75" height="420" fill="url(#towerGradient)" rx="4" />
-          <rect x="800" y="120" width="85" height="480" fill="url(#towerGradient)" rx="4" />
-          <rect x="930" y="200" width="65" height="400" fill="url(#towerGradient)" rx="4" />
-          <rect x="1040" y="100" width="95" height="500" fill="url(#towerGradient)" rx="4" />
-        </svg>
-
-        {/* Glowing primary tower */}
-        <motion.div
-          animate={{ opacity: [0.4, 0.6, 0.4] }}
-          transition={{ duration: 4, repeat: Infinity }}
-          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-40 h-[70%] bg-gradient-to-t from-primary/20 to-transparent blur-xl"
-        />
-      </div>
+      {/* Background Image - City Skyline */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=2000&q=80')`,
+        }}
+      />
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/70 to-slate-900/85" />
 
       {/* Content */}
-      <div className="relative z-20 container mx-auto px-4 sm:px-6 py-24 lg:py-32">
-        {/* Header */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
+        {/* Section Header */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true, margin: "-100px" }}
-          className="text-center max-w-3xl mx-auto mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-14"
         >
-          <motion.span 
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/20 border border-primary/40 text-primary text-sm font-semibold mb-6"
-          >
-            <Building2 className="w-4 h-4" />
-            Corporate Tower Lobby
-          </motion.span>
-          
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-primary-foreground mb-6">
-            Let's Build <span className="text-gradient-primary">Together</span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-white mb-4">
+            Start Your{' '}
+            <span className="text-primary">Architecture Project</span>
+            {' '}Today
           </h2>
-          
-          <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
-            Step into our tower lobby and connect with us. We're ready to transform 
-            your architectural vision into reality.
+          <p className="text-lg text-slate-200 max-w-2xl mx-auto">
+            Ready to bring your vision to life? Our team of experienced architects 
+            and engineers is here to guide you through every step.
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 max-w-6xl mx-auto">
-          {/* Left: Contact Info as Tower Floors */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          {/* Contact Form */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
+            initial={{ opacity: 0, x: -40 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <div className="relative">
-              {/* Tower structure */}
-              <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-primary/50 via-primary/30 to-transparent" />
-              
-              <div className="space-y-6">
-                {contactInfo.map((info, index) => (
+            <Card className="bg-white border-0 shadow-2xl">
+              <CardContent className="p-8">
+                <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                  Request a Consultation
+                </h3>
+                <p className="text-slate-600 mb-6">
+                  Fill out the form below and we'll get back to you within 24 hours.
+                </p>
+
+                {submitted ? (
                   <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -30 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                    whileHover={{ x: 10 }}
-                    className="relative pl-16"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex flex-col items-center justify-center py-12 text-center"
                   >
-                    {/* Floor indicator */}
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center">
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-lg shadow-primary/30">
-                        <info.icon className="w-7 h-7 text-primary-foreground" />
+                    <CheckCircle className="w-16 h-16 text-green-500 mb-4" />
+                    <h4 className="text-xl font-bold text-slate-900 mb-2">
+                      Thank You!
+                    </h4>
+                    <p className="text-slate-600">
+                      We've received your message and will contact you soon.
+                    </p>
+                  </motion.div>
+                ) : (
+                  <form onSubmit={handleSubmit} className="space-y-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <div className="space-y-2">
+                        <Label htmlFor="name" className="text-slate-800 font-semibold">
+                          Full Name
+                        </Label>
+                        <Input
+                          id="name"
+                          placeholder="John Smith"
+                          required
+                          className="bg-white border-2 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-primary h-12"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email" className="text-slate-800 font-semibold">
+                          Email Address
+                        </Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="john@example.com"
+                          required
+                          className="bg-white border-2 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-primary h-12"
+                        />
                       </div>
                     </div>
 
-                    <div className="bg-card/20 backdrop-blur-xl rounded-2xl p-6 border border-border/30 hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-semibold text-primary-foreground text-lg">
-                          {info.label}
-                        </h4>
-                        <span className="text-xs text-primary font-mono">
-                          Floor {info.floor}
-                        </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <div className="space-y-2">
+                        <Label htmlFor="phone" className="text-slate-800 font-semibold">
+                          Phone Number
+                        </Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          placeholder="+1 (555) 000-0000"
+                          className="bg-white border-2 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-primary h-12"
+                        />
                       </div>
-                      <p className="text-muted-foreground">
-                        {info.value}
-                      </p>
+                      <div className="space-y-2">
+                        <Label htmlFor="project" className="text-slate-800 font-semibold">
+                          Project Type
+                        </Label>
+                        <select
+                          id="project"
+                          className="w-full h-12 px-3 bg-white border-2 border-slate-200 rounded-md text-slate-900 focus:border-primary focus:outline-none"
+                        >
+                          <option value="">Select project type</option>
+                          <option value="residential">Residential</option>
+                          <option value="commercial">Commercial</option>
+                          <option value="renovation">Renovation</option>
+                          <option value="consulting">Consulting</option>
+                        </select>
+                      </div>
                     </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="message" className="text-slate-800 font-semibold">
+                        Project Details
+                      </Label>
+                      <Textarea
+                        id="message"
+                        placeholder="Tell us about your project requirements, timeline, and any specific needs..."
+                        rows={4}
+                        required
+                        className="bg-white border-2 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-primary resize-none"
+                      />
+                    </div>
+
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className="w-full bg-primary hover:bg-primary/90 text-white font-semibold h-14 text-lg shadow-xl"
+                    >
+                      <Send className="w-5 h-5 mr-2" />
+                      Send Message
+                    </Button>
+                  </form>
+                )}
+              </CardContent>
+            </Card>
           </motion.div>
 
-          {/* Right: Quote Form - Tower Lobby Style */}
+          {/* Contact Info Cards */}
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
+            initial={{ opacity: 0, x: 40 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="space-y-5"
           >
-            <form
-              onSubmit={handleSubmit}
-              className="relative bg-card/10 backdrop-blur-2xl rounded-3xl p-8 md:p-10 border border-border/30 shadow-2xl overflow-hidden"
+            {contactInfo.map((info, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.4, delay: 0.4 + index * 0.1 }}
+              >
+                <Card className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-colors duration-300">
+                  <CardContent className="p-5 flex items-center gap-5">
+                    <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center shadow-lg flex-shrink-0">
+                      <info.icon className="w-7 h-7 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-300 mb-1">
+                        {info.label}
+                      </p>
+                      <p className="text-lg font-bold text-white">
+                        {info.value}
+                      </p>
+                      <p className="text-sm text-slate-400">
+                        {info.subtext}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+
+            {/* Additional CTA */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.4, delay: 0.8 }}
+              className="pt-4"
             >
-              {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/20 to-transparent blur-2xl" />
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-secondary/20 to-transparent blur-2xl" />
-              
-              <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center">
-                    <Sparkles className="w-6 h-6 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-display font-bold text-primary-foreground">
-                      Get a Quote
-                    </h3>
-                    <p className="text-sm text-muted-foreground">Tower Lobby Reception</p>
-                  </div>
-                </div>
-
-                <div className="space-y-5">
-                  {/* Name */}
-                  <motion.div whileFocus={{ scale: 1.01 }}>
-                    <input
-                      type="text"
-                      placeholder="Your Name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      onFocus={() => setFocusedField('name')}
-                      onBlur={() => setFocusedField(null)}
-                      className={`w-full px-5 py-4 rounded-xl bg-background/50 border-2 transition-all duration-300 outline-none text-foreground placeholder:text-muted-foreground ${
-                        focusedField === 'name'
-                          ? 'border-primary shadow-lg shadow-primary/20'
-                          : 'border-border/50 hover:border-muted-foreground'
-                      }`}
-                      required
-                    />
-                  </motion.div>
-
-                  {/* Email & Phone */}
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <input
-                      type="email"
-                      placeholder="Email Address"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      onFocus={() => setFocusedField('email')}
-                      onBlur={() => setFocusedField(null)}
-                      className={`w-full px-5 py-4 rounded-xl bg-background/50 border-2 transition-all duration-300 outline-none text-foreground placeholder:text-muted-foreground ${
-                        focusedField === 'email'
-                          ? 'border-primary shadow-lg shadow-primary/20'
-                          : 'border-border/50 hover:border-muted-foreground'
-                      }`}
-                      required
-                    />
-                    <input
-                      type="tel"
-                      placeholder="Phone Number"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      onFocus={() => setFocusedField('phone')}
-                      onBlur={() => setFocusedField(null)}
-                      className={`w-full px-5 py-4 rounded-xl bg-background/50 border-2 transition-all duration-300 outline-none text-foreground placeholder:text-muted-foreground ${
-                        focusedField === 'phone'
-                          ? 'border-secondary shadow-lg shadow-secondary/20'
-                          : 'border-border/50 hover:border-muted-foreground'
-                      }`}
-                    />
-                  </div>
-
-                  {/* Project Type */}
-                  <select
-                    value={formData.projectType}
-                    onChange={(e) => setFormData({ ...formData, projectType: e.target.value })}
-                    onFocus={() => setFocusedField('type')}
-                    onBlur={() => setFocusedField(null)}
-                    className={`w-full px-5 py-4 rounded-xl bg-background/50 border-2 transition-all duration-300 outline-none appearance-none cursor-pointer ${
-                      focusedField === 'type'
-                        ? 'border-primary shadow-lg shadow-primary/20'
-                        : 'border-border/50 hover:border-muted-foreground'
-                    } ${!formData.projectType ? 'text-muted-foreground' : 'text-foreground'}`}
-                    required
+              <Card className="bg-primary border-0 shadow-xl">
+                <CardContent className="p-6 text-center">
+                  <h4 className="text-xl font-bold text-white mb-2">
+                    Need Urgent Consultation?
+                  </h4>
+                  <p className="text-white/80 mb-4">
+                    Call us directly for immediate assistance with your project.
+                  </p>
+                  <Button
+                    size="lg"
+                    variant="secondary"
+                    className="bg-white text-primary hover:bg-slate-100 font-semibold"
                   >
-                    <option value="">Select Project Type</option>
-                    {projectTypes.map((type) => (
-                      <option key={type} value={type} className="text-foreground bg-card">
-                        {type}
-                      </option>
-                    ))}
-                  </select>
-
-                  {/* Message */}
-                  <textarea
-                    placeholder="Tell us about your project vision..."
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    onFocus={() => setFocusedField('message')}
-                    onBlur={() => setFocusedField(null)}
-                    rows={4}
-                    className={`w-full px-5 py-4 rounded-xl bg-background/50 border-2 transition-all duration-300 outline-none resize-none text-foreground placeholder:text-muted-foreground ${
-                      focusedField === 'message'
-                        ? 'border-primary shadow-lg shadow-primary/20'
-                        : 'border-border/50 hover:border-muted-foreground'
-                    }`}
-                    required
-                  />
-
-                  {/* Submit Button */}
-                  <Button 
-                    variant="hero" 
-                    size="xl" 
-                    className="w-full shadow-2xl shadow-primary/30 hover:shadow-primary/50"
-                    type="submit"
-                  >
-                    <Send className="w-5 h-5" />
-                    Send Message
+                    <Phone className="w-5 h-5 mr-2" />
+                    Call Now
                   </Button>
-                </div>
-              </div>
-            </form>
+                </CardContent>
+              </Card>
+            </motion.div>
           </motion.div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
