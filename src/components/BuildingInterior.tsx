@@ -1,132 +1,76 @@
 import { useRef, useState, useEffect } from 'react';
-import { motion, useScroll } from 'framer-motion';
-import FloorSection from './FloorSection';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import FloorIndicator from './FloorIndicator';
-
-interface Room {
-  name: string;
-  image: string;
-  description: string;
-}
 
 interface Floor {
   number: number;
   name: string;
   tagline: string;
-  rooms: Room[];
-  accentColor: 'primary' | 'secondary' | 'accent';
+  image: string;
 }
 
 const floorsData: Floor[] = [
   {
+    number: 7,
+    name: 'Rooftop Terrace',
+    tagline: 'Where the sky meets luxury',
+    image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1920&q=80',
+  },
+  {
+    number: 6,
+    name: 'Penthouse Living',
+    tagline: 'Open-concept elegance',
+    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80',
+  },
+  {
     number: 5,
-    name: 'Penthouse Suite',
-    tagline: 'Where luxury meets the sky — exclusive residential designs for the discerning few.',
-    rooms: [
-      {
-        name: 'Grand Living Room',
-        image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80',
-        description: 'Expansive open-concept living with floor-to-ceiling windows and panoramic city views.',
-      },
-      {
-        name: 'Sky Terrace',
-        image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80',
-        description: 'Private outdoor sanctuary with infinity pool and lounge areas.',
-      },
-    ],
-    accentColor: 'primary',
+    name: 'Gourmet Kitchen',
+    tagline: 'Culinary perfection',
+    image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1920&q=80',
   },
   {
     number: 4,
-    name: 'Creative Studio',
-    tagline: 'Where ideas come to life — inspiring workspaces that fuel innovation.',
-    rooms: [
-      {
-        name: 'Design Studio',
-        image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80',
-        description: 'Open collaborative space with natural light and modern amenities.',
-      },
-      {
-        name: 'Executive Meeting Room',
-        image: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&q=80',
-        description: 'Sophisticated conference space for impactful presentations.',
-      },
-    ],
-    accentColor: 'secondary',
+    name: 'Master Bedroom',
+    tagline: 'Serene retreat',
+    image: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=1920&q=80',
   },
   {
     number: 3,
-    name: 'Living Spaces',
-    tagline: 'Modern apartments designed for comfort, style, and everyday living.',
-    rooms: [
-      {
-        name: 'Master Bedroom',
-        image: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=800&q=80',
-        description: 'Serene retreat with custom millwork and ambient lighting.',
-      },
-      {
-        name: 'Gourmet Kitchen',
-        image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80',
-        description: 'Chef-inspired kitchen with premium appliances and elegant finishes.',
-      },
-    ],
-    accentColor: 'accent',
+    name: 'Creative Office',
+    tagline: 'Where ideas flourish',
+    image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80',
   },
   {
     number: 2,
-    name: 'Commercial Floor',
-    tagline: 'Professional spaces that make a statement — designed for success.',
-    rooms: [
-      {
-        name: 'Corporate Office',
-        image: 'https://images.unsplash.com/photo-1604328698692-f76ea9498e76?w=800&q=80',
-        description: 'Premium office environment with ergonomic design and technology integration.',
-      },
-      {
-        name: 'Retail Showroom',
-        image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80',
-        description: 'Curated display spaces that elevate brands and engage customers.',
-      },
-    ],
-    accentColor: 'primary',
+    name: 'Villa Exterior',
+    tagline: 'Mediterranean beauty',
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&q=80',
   },
   {
     number: 1,
     name: 'Grand Lobby',
-    tagline: 'First impressions that last — welcoming spaces that set the tone.',
-    rooms: [
-      {
-        name: 'Reception Hall',
-        image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80',
-        description: 'Dramatic entrance with double-height ceilings and signature lighting.',
-      },
-      {
-        name: 'Concierge Lounge',
-        image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800&q=80',
-        description: 'Elegant waiting area with curated art and comfortable seating.',
-      },
-    ],
-    accentColor: 'secondary',
+    tagline: 'First impressions last',
+    image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1920&q=80',
   },
 ];
 
 const BuildingInterior = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [currentFloor, setCurrentFloor] = useState(5);
+  const [currentFloor, setCurrentFloor] = useState(7);
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end end'],
   });
 
+  // Update current floor based on scroll progress
   useEffect(() => {
     const unsubscribe = scrollYProgress.on('change', (value) => {
-      // Map scroll progress to floor number (5 floors)
-      const floorIndex = Math.min(Math.floor(value * floorsData.length), floorsData.length - 1);
-      const floor = floorsData[floorIndex];
-      if (floor) {
-        setCurrentFloor(floor.number);
-      }
+      const floorIndex = Math.min(
+        Math.floor(value * floorsData.length),
+        floorsData.length - 1
+      );
+      setCurrentFloor(floorsData[floorIndex]?.number ?? 7);
     });
     return unsubscribe;
   }, [scrollYProgress]);
@@ -137,39 +81,56 @@ const BuildingInterior = () => {
     <section
       ref={containerRef}
       id="building-interior"
-      className="relative bg-background"
+      className="relative"
+      style={{ height: `${floorsData.length * 100}vh` }}
     >
-      {/* Building Entry Header */}
-      <div className="relative py-20 bg-gradient-to-b from-muted/50 to-background overflow-hidden">
-        <div className="container mx-auto px-6 text-center">
+      {/* Fixed fullscreen container */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden">
+        {/* Background layers */}
+        {floorsData.map((floor, index) => (
+          <FloorBackground
+            key={floor.number}
+            floor={floor}
+            index={index}
+            totalFloors={floorsData.length}
+            scrollYProgress={scrollYProgress}
+          />
+        ))}
+
+        {/* Content overlay */}
+        <div className="absolute inset-0 flex flex-col justify-end items-center pb-20 z-10">
+          {/* Dark gradient for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent pointer-events-none" />
+          
+          {/* Floor info */}
           <motion.div
+            key={currentFloor}
             initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -30 }}
+            transition={{ duration: 0.5 }}
+            className="relative z-10 text-center px-6"
           >
-            <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-6">
-              Begin Your Tour
+            <span className="inline-block px-4 py-2 rounded-full bg-primary/20 backdrop-blur-sm text-primary text-sm font-semibold mb-4">
+              Floor {currentFloorData?.number}
             </span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mb-4">
-              Step Inside Our{' '}
-              <span className="text-gradient-primary">Creations</span>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground mb-3">
+              {currentFloorData?.name}
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Scroll down to explore each floor — from the penthouse to the lobby, 
-              discover the artistry behind every space we design.
+            <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto">
+              {currentFloorData?.tagline}
             </p>
           </motion.div>
-          
-          {/* Scroll Indicator */}
+
+          {/* Scroll hint */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
-            className="mt-12"
+            className="absolute bottom-8 left-1/2 -translate-x-1/2"
           >
             <motion.div
-              animate={{ y: [0, 10, 0] }}
+              animate={{ y: [0, 8, 0] }}
               transition={{ repeat: Infinity, duration: 1.5 }}
               className="flex flex-col items-center gap-2 text-muted-foreground"
             >
@@ -180,14 +141,10 @@ const BuildingInterior = () => {
                   className="w-1.5 h-1.5 rounded-full bg-primary"
                 />
               </div>
-              <span className="text-sm font-medium">Scroll to descend</span>
+              <span className="text-xs font-medium">Scroll to explore</span>
             </motion.div>
           </motion.div>
         </div>
-        
-        {/* Decorative Elements */}
-        <div className="absolute left-1/4 top-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute right-1/4 bottom-10 w-40 h-40 bg-secondary/5 rounded-full blur-3xl" />
       </div>
 
       {/* Floor Indicator */}
@@ -196,40 +153,60 @@ const BuildingInterior = () => {
         totalFloors={floorsData.length}
         floorName={currentFloorData?.name || ''}
       />
-
-      {/* Floor Sections */}
-      {floorsData.map((floor, index) => (
-        <FloorSection
-          key={floor.number}
-          floorNumber={floor.number}
-          floorName={floor.name}
-          tagline={floor.tagline}
-          rooms={floor.rooms}
-          accentColor={floor.accentColor}
-          isFirst={index === 0}
-          isLast={index === floorsData.length - 1}
-        />
-      ))}
-
-      {/* Building Exit */}
-      <div className="relative py-20 bg-gradient-to-t from-muted/50 to-background">
-        <div className="container mx-auto px-6 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <h3 className="text-2xl md:text-3xl font-display font-bold text-foreground mb-4">
-              Ready to Create Your Space?
-            </h3>
-            <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-              Every floor tells a story. Let us write yours.
-            </p>
-          </motion.div>
-        </div>
-      </div>
     </section>
+  );
+};
+
+// Separate component for floor background with opacity animation
+interface FloorBackgroundProps {
+  floor: Floor;
+  index: number;
+  totalFloors: number;
+  scrollYProgress: ReturnType<typeof useScroll>['scrollYProgress'];
+}
+
+const FloorBackground = ({ floor, index, totalFloors, scrollYProgress }: FloorBackgroundProps) => {
+  // Calculate opacity based on scroll position
+  // Each floor gets 1/totalFloors of the scroll range
+  const segmentSize = 1 / totalFloors;
+  const start = index * segmentSize;
+  const peak = start + segmentSize * 0.5;
+  const end = start + segmentSize;
+
+  const opacity = useTransform(
+    scrollYProgress,
+    [
+      Math.max(0, start - segmentSize * 0.3),
+      start,
+      peak,
+      end,
+      Math.min(1, end + segmentSize * 0.3),
+    ],
+    [0, 1, 1, 1, 0]
+  );
+
+  // First floor starts visible
+  const adjustedOpacity = useTransform(opacity, (value) => {
+    if (index === 0) {
+      return Math.max(value, scrollYProgress.get() < 0.1 ? 1 : value);
+    }
+    return value;
+  });
+
+  return (
+    <motion.div
+      style={{ opacity: index === 0 ? 1 : adjustedOpacity }}
+      className="absolute inset-0"
+    >
+      <img
+        src={floor.image}
+        alt={floor.name}
+        className="w-full h-full object-cover"
+        loading={index < 2 ? 'eager' : 'lazy'}
+      />
+      {/* Subtle overlay for depth */}
+      <div className="absolute inset-0 bg-background/10" />
+    </motion.div>
   );
 };
 
