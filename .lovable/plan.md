@@ -1,114 +1,148 @@
 
-# Fullscreen Scrollytelling with Immersive Background Transitions
+# Integrated Scrollytelling with Page Sections
 
 ## What You'll Get
-A cinematic scroll experience where each floor is a **fullscreen background image** that transitions smoothly as you scroll. Instead of room cards on a page, the entire screen becomes the room itself - like walking through a building.
+Each floor of the building becomes a **full section of the website**, with the interior room image as the background and the actual content (Hero, Services, Studio, Contact) overlaid on top. You'll scroll through floors AND navigate through the site simultaneously.
 
 ## Visual Experience
 
 ```text
-+--------------------------------------------------+
-|                                                  |
-|   ████████████ ROOF IMAGE ██████████████████     |
-|   ██████████ (Rooftop View) █████████████████    |
-|   ████████████████████████████████████████████   |
-|   ███████████████████ ███████████████████████    |
-|              "Welcome to the Top"                |
-|              [Floor 5 Indicator]                 |
-+--------------------------------------------------+
++----------------------------------------------------------+
+|  ████████ ROOFTOP TERRACE BACKGROUND ████████████████████ |
+|  ████████████████████████████████████████████████████████ |
+|                                                          |
+|              "Building the Future"                       |
+|              [Hero content, CTAs, Stats]                 |
+|              [Begin Tour button]                         |
+|                                                          |
+|                     [Floor 7]                            |
++----------------------------------------------------------+
          ↓ SCROLL DOWN ↓
-+--------------------------------------------------+
-|                                                  |
-|   ████████ LIVING ROOM IMAGE ████████████████    |
-|   ██████████ (Penthouse) ████████████████████    |
-|   ████████████████████████████████████████████   |
-|              "Luxury Living"                     |
-|              [Floor 4 Indicator]                 |
-+--------------------------------------------------+
++----------------------------------------------------------+
+|  ████████ PENTHOUSE LIVING BACKGROUND ███████████████████ |
+|  ████████████████████████████████████████████████████████ |
+|                                                          |
+|              "Our Services"                              |
+|              [Design | Engineering | Construction]       |
+|              [Service cards with icons]                  |
+|                                                          |
+|                     [Floor 6]                            |
++----------------------------------------------------------+
          ↓ SCROLL DOWN ↓
-+--------------------------------------------------+
-|                                                  |
-|   ████████████ KITCHEN IMAGE ████████████████    |
-|   ██████████████████████████████████████████     |
-|              "Gourmet Space"                     |
-|              [Floor 3 Indicator]                 |
-+--------------------------------------------------+
++----------------------------------------------------------+
+|  ████████ CREATIVE OFFICE BACKGROUND ████████████████████ |
+|  ████████████████████████████████████████████████████████ |
+|                                                          |
+|              "The Studio"                                |
+|              [Portfolio grid]                            |
+|              [Project filter tabs]                       |
+|                                                          |
+|                     [Floor 5]                            |
++----------------------------------------------------------+
+         ↓ SCROLL DOWN ↓
++----------------------------------------------------------+
+|  ████████ GRAND LOBBY BACKGROUND ████████████████████████ |
+|  ████████████████████████████████████████████████████████ |
+|                                                          |
+|              "Get In Touch"                              |
+|              [Contact form]                              |
+|              [Contact info cards]                        |
+|                                                          |
+|                     [Floor 1]                            |
++----------------------------------------------------------+
 ```
 
-## How It Works
-1. **Sticky Container**: A fullscreen container stays fixed while you scroll
-2. **Background Layers**: Multiple full-screen images stacked, each fading in/out based on scroll position
-3. **Content Overlays**: Minimal text labels appear on top of each background
-4. **Smooth Crossfade**: As you scroll past threshold points, one image fades out while the next fades in
+## Floor-to-Section Mapping
 
-## Floor Sequence (7 Rooms)
-| Floor | Room Type | Background Image |
-|-------|-----------|------------------|
-| 7 | Rooftop Terrace | Luxury rooftop with city views |
-| 6 | Penthouse Living | Modern open-concept living room |
-| 5 | Kitchen | High-end gourmet kitchen |
-| 4 | Master Bedroom | Elegant bedroom suite |
-| 3 | Office | Creative workspace/studio |
-| 2 | Villa Exterior | Mediterranean villa outdoor |
-| 1 | Grand Lobby | Reception hall entrance |
+| Floor | Background Image | Section Content |
+|-------|-----------------|-----------------|
+| 4 | Rooftop Terrace | **Hero** - Welcome, headline, CTAs, stats |
+| 3 | Penthouse Living | **Services** - Design, Engineering, Construction |
+| 2 | Creative Office | **Studio** - Portfolio gallery with filters |
+| 1 | Grand Lobby | **Contact** - Quote form, contact info |
+
+## How It Works
+1. **Single Scrollytelling Container**: One main component handles everything
+2. **Fullscreen Backgrounds**: Each section has its interior image as the fixed background
+3. **Content Overlays**: Hero, Services, Studio, Contact content displayed on top
+4. **Glass/Semi-transparent Cards**: Section content uses glass-morphism or semi-transparent backgrounds for readability
+5. **Smooth Transitions**: Background crossfades between floors while content scrolls
 
 ---
 
-## Technical Details
+## Technical Implementation
 
 ### Architecture Change
-Replace the current card-based layout with a **sticky scroll container** where:
-- One container is `position: fixed` at `100vh` height
-- A scroll spacer creates the scroll height (7 floors x 100vh)
-- Scroll progress controls which background is visible
+Consolidate everything into `BuildingInterior.tsx`:
+- Remove separate HeroSection, ServicesSection, StudioSection, ContactSection from Index
+- Embed their content directly inside the scrollytelling floors
+- Each floor gets both a background image AND the section content
 
 ### Files to Modify
 
-**`src/components/BuildingInterior.tsx`** (Complete Rewrite)
-- Create a sticky fullscreen container
-- Stack 7 background image layers with absolute positioning
-- Track scroll progress to control opacity of each layer
-- Add minimal text overlay for room names
+**`src/components/BuildingInterior.tsx`** (Major Rewrite)
+- Reduce to 4 floors (matching the 4 main sections)
+- Each floor includes:
+  - Fullscreen background image with overlay for readability
+  - The actual section content (Hero/Services/Studio/Contact)
+- Content styled with glass-morphism containers
+- Preserve all existing section functionality (portfolio filters, contact form, etc.)
 
-**`src/components/FloorIndicator.tsx`** (Minor Updates)
-- Keep the elevator-style indicator
-- Update to work with the new 7-floor structure
+**`src/pages/Index.tsx`** (Simplify)
+- Remove HeroSection, ServicesSection, StudioSection, ContactSection imports
+- Just render: Navbar + BuildingInterior + Footer
 
-### Files to Delete
-- `src/components/FloorSection.tsx` - No longer needed (floors are now backgrounds)
-- `src/components/RoomCard.tsx` - No longer needed (no cards, just fullscreen images)
+### Files That Stay Unchanged
+- `src/components/Navbar.tsx` - Keep fixed navigation
+- `src/components/Footer.tsx` - Keep at the end
+- `src/components/FloorIndicator.tsx` - Keep elevator indicator
+- `src/components/StudioSection.tsx` - Will extract its logic into BuildingInterior
+- `src/components/ContactSection.tsx` - Will extract its logic into BuildingInterior
 
 ### Key Implementation Details
 
-**Scroll-to-Opacity Mapping:**
-```typescript
-// Each floor occupies ~14% of total scroll (1/7)
-// When scroll is 0-14%: Floor 7 visible
-// When scroll is 14-28%: Crossfade to Floor 6
-// etc.
-```
-
-**Fullscreen Background Styling:**
+**Glass-morphism Containers for Readability:**
 ```css
-.floor-background {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
+.content-overlay {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border-radius: 24px;
+  padding: 48px;
 }
 ```
 
-**Text Overlay:**
-- Semi-transparent dark gradient at bottom for text readability
-- Large floor name + short tagline
-- Positioned center or bottom of screen
+**Scroll Height Calculation:**
+- Each floor = 100vh minimum (some floors may need more for content)
+- Services floor might need 120vh for the cards
+- Studio floor needs 150vh for the portfolio grid
+- Contact floor = 100vh
 
-### Image Selection
-Will use stunning Unsplash images for each room:
-- Rooftop: Dramatic sky terrace
-- Living Room: Bright modern interior
-- Kitchen: Marble counters, premium appliances
-- Bedroom: Cozy, elegant suite
-- Office: Inspiring workspace
-- Villa: Mediterranean outdoor beauty
-- Lobby: Grand architectural entrance
+**Content Animation:**
+- Content fades in as you enter each floor
+- Uses `whileInView` from Framer Motion
+- Staggered animations for child elements
+
+### Section Content Summary
+
+**Floor 4 - Hero:**
+- Badge, headline, description
+- CTA buttons (Begin Tour, View Our Work)
+- Stats row (150+ Projects, 80+ Clients, 15+ Years)
+- Scroll indicator
+
+**Floor 3 - Services:**
+- Section header with badge
+- 3 service cards (Design, Engineering, Construction)
+- Each card: icon, title, description, feature list
+- "Explore All Services" CTA
+
+**Floor 2 - Studio:**
+- Section header
+- Category filter tabs
+- 6-project masonry grid
+- Project modal with details
+
+**Floor 1 - Contact:**
+- Two-column layout
+- Left: Headline, description, contact info cards
+- Right: Quote form with inputs
