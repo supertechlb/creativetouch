@@ -1,313 +1,251 @@
-import React, { useRef, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Environment, ContactShadows, Float, Center } from '@react-three/drei';
-import * as THREE from 'three';
+import React, { useMemo, useRef } from "react";
+import * as THREE from "three";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import { Center, ContactShadows, Environment, Float } from "@react-three/drei";
+import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader";
 
-// --- ANIMATION CONFIG ---
-const ANIM_DURATION = 1.2;
-const RESTART_DELAY = 7;
+type PartTag = "feather" | "orange" | "blue" | "other";
 
-// --- HELPER: CONSTRUCTION PIECE ---
-const ConstructionPiece = ({ 
-  children, 
-  delay = 0, 
-  from = [0, 10, 0] as [number, number, number],
-  scaleAnim = false 
-}: { 
-  children: React.ReactNode; 
-  delay?: number; 
-  from?: [number, number, number];
-  scaleAnim?: boolean;
-}) => {
-  const group = useRef<THREE.Group>(null);
-  const startVec = new THREE.Vector3(...from);
+const ORANGE = new THREE.Color("#F47C20"); // closer to your logo orange
+const BLUE = new THREE.Color("#2F5BD3"); // closer to your logo blue
 
-  useFrame(({ clock }) => {
-    if (!group.current) return;
-    
-    const t = clock.getElapsedTime() % RESTART_DELAY;
-    let progress = Math.max(0, Math.min(1, (t - delay) / ANIM_DURATION));
-    
-    // Elastic ease out
-    const ease = (x: number) => {
-      const c4 = (2 * Math.PI) / 3;
-      return x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1;
-    };
-    const val = ease(progress);
-
-    group.current.position.lerpVectors(startVec, new THREE.Vector3(0, 0, 0), val);
-
-    if (scaleAnim) {
-      group.current.scale.setScalar(Math.max(0.001, val));
-    }
-    
-    group.current.traverse((child) => {
-      if ((child as THREE.Mesh).isMesh) {
-        const mesh = child as THREE.Mesh;
-        if (mesh.material && 'opacity' in mesh.material) {
-          (mesh.material as THREE.MeshPhysicalMaterial).transparent = true;
-          (mesh.material as THREE.MeshPhysicalMaterial).opacity = Math.max(0, Math.min(1, progress * 2.5));
-        }
-      }
-    });
-  });
-
-  return <group ref={group}>{children}</group>;
-};
-
-// --- FEATHER FACET (Flat polygon matching SVG exactly) ---
-const FeatherFacet = ({ 
-  color, 
-  position, 
-  rotation, 
-  scale,
-}: { 
-  color: string; 
-  position: [number, number, number]; 
-  rotation: [number, number, number]; 
-  scale: [number, number, number];
-}) => {
+export default function LogoBuild3D({
+  className = "w-full h-[420px]",
+  svgUrl = "/assets/creative-touch-logo.svg",
+}: {
+  className?: string;
+  svgUrl?: string;
+}) {
   return (
-    <group position={position} rotation={rotation}>
-      {/* Flat rhombus/diamond shape using thin box rotated 45 degrees */}
-      <mesh castShadow scale={scale} rotation={[0, 0, Math.PI / 4]}>
-        <boxGeometry args={[1, 1, 0.12]} />
-        <meshStandardMaterial 
-          color={color} 
-          roughness={0.3} 
-          metalness={0.1}
-        />
-      </mesh>
-    </group>
-  );
-};
+    <div className={className}>
+      <Canvas shadows dpr={[1, 2]} gl={{ antialias: true, alpha: true }} camera={{ position: [0, 0.9, 5.0], fov: 38 }}>
+        <color attach="background" args={["#ffffff"]} />
 
-// --- PART 1: THE FEATHER (Left) - Diamond facets matching SVG S-curve ---
-const Feather = () => {
-  // Exact colors from SVG: #84508C (magenta), #299DB5/#2EA0A9 (cyan), 
-  // #218694/#247C8E/#53928C (teal), #E88A35/#E19238 (orange), #E74326/#DD6C34/#DB5237 (red)
-  const facets = [
-    // Top tip - Magenta/Purple (from SVG #84508C)
-    { color: '#84508C', pos: [0.35, 2.6, 0], rot: [0, 0, 0.55], scale: [0.28, 0.28, 1] },
-    { color: '#9B5BA3', pos: [0.08, 2.25, 0], rot: [0, 0, 0.35], scale: [0.35, 0.35, 1] },
-    
-    // Upper section - Cyan (from SVG #299DB5, #2EA0A9)
-    { color: '#299DB5', pos: [-0.18, 1.9, 0], rot: [0, 0, 0.2], scale: [0.42, 0.42, 1] },
-    { color: '#2EA0A9', pos: [0.1, 1.55, 0], rot: [0, 0, 0.08], scale: [0.45, 0.45, 1] },
-    { color: '#299DB5', pos: [-0.28, 1.25, 0], rot: [0, 0, 0.18], scale: [0.40, 0.40, 1] },
-    
-    // Middle section - Teal (from SVG #218694, #247C8E, #53928C)
-    { color: '#218694', pos: [-0.35, 0.9, 0], rot: [0, 0, 0.05], scale: [0.50, 0.50, 1] },
-    { color: '#247C8E', pos: [0.0, 0.55, 0], rot: [0, 0, -0.02], scale: [0.52, 0.52, 1] },
-    { color: '#53928C', pos: [-0.38, 0.2, 0], rot: [0, 0, 0.0], scale: [0.48, 0.48, 1] },
-    { color: '#218694', pos: [-0.05, -0.15, 0], rot: [0, 0, -0.05], scale: [0.50, 0.50, 1] },
-    
-    // Lower section - Orange (from SVG #E88A35, #E19238)
-    { color: '#E88A35', pos: [-0.3, -0.5, 0], rot: [0, 0, -0.1], scale: [0.48, 0.48, 1] },
-    { color: '#E19238', pos: [0.02, -0.85, 0], rot: [0, 0, -0.18], scale: [0.45, 0.45, 1] },
-    { color: '#E88A35', pos: [-0.22, -1.15, 0], rot: [0, 0, -0.12], scale: [0.42, 0.42, 1] },
-    
-    // Bottom section - Red (from SVG #E74326, #DD6C34, #DB5237)
-    { color: '#E74326', pos: [0.08, -1.45, 0], rot: [0, 0, -0.25], scale: [0.40, 0.40, 1] },
-    { color: '#DD6C34', pos: [-0.1, -1.75, 0], rot: [0, 0, -0.32], scale: [0.35, 0.35, 1] },
-    { color: '#DB5237', pos: [0.18, -2.0, 0], rot: [0, 0, -0.42], scale: [0.30, 0.30, 1] },
-    
-    // Tip - Dark red (from SVG #E16833)
-    { color: '#E16833', pos: [0.42, -2.25, 0], rot: [0, 0, -0.55], scale: [0.22, 0.22, 1] },
-  ];
-
-  return (
-    <group position={[-2.2, 0.2, 0]}>
-      {facets.map((facet, i) => (
-        <ConstructionPiece 
-          key={i} 
-          delay={0.05 + i * 0.04} 
-          from={[-2 - Math.random() * 2, 3 - i * 0.15, Math.random() - 0.5]} 
-          scaleAnim
-        >
-          <FeatherFacet
-            color={facet.color}
-            position={facet.pos as [number, number, number]}
-            rotation={facet.rot as [number, number, number]}
-            scale={facet.scale as [number, number, number]}
-          />
-        </ConstructionPiece>
-      ))}
-      {/* Quill stem - white curved line */}
-      <ConstructionPiece delay={0.85} from={[0, -5, 0]}>
-        <mesh position={[0.6, -2.65, 0]} rotation={[0, 0, -0.35]}>
-          <cylinderGeometry args={[0.025, 0.01, 1.0, 8]} />
-          <meshStandardMaterial color="#ffffff" />
-        </mesh>
-      </ConstructionPiece>
-    </group>
-  );
-};
-
-// --- PART 2: THE ORANGE BUILDING (Center) - Smooth tapered tower matching SVG ---
-const OrangeBuilding = () => {
-  // Colors from SVG: #E16833, #E88A35, #E19238 - orange gradient
-  const segments = [
-    { y: -2.1, w: 1.4, h: 0.95, color: '#C65A2C' },   // Dark orange base
-    { y: -1.2, w: 1.32, h: 0.85, color: '#E16833' },  // From SVG
-    { y: -0.4, w: 1.22, h: 0.75, color: '#E88A35' },  // From SVG
-    { y: 0.3, w: 1.12, h: 0.65, color: '#E19238' },   // From SVG
-    { y: 0.9, w: 1.0, h: 0.55, color: '#F0A040' },    // Light orange
-    { y: 1.4, w: 0.85, h: 0.45, color: '#F5B050' },   // Yellow-orange
-    { y: 1.8, w: 0.68, h: 0.35, color: '#FAC060' },   // Light yellow
-  ];
-
-  return (
-    <group position={[0.1, 0, 0]}>
-      {/* Main building body - smooth tapered segments */}
-      <ConstructionPiece delay={0.3} from={[0, 8, 0]}>
-        {segments.map((seg, i) => (
-          <mesh key={i} castShadow position={[0, seg.y, 0]}>
-            <boxGeometry args={[seg.w, seg.h, 0.4]} />
-            <meshStandardMaterial color={seg.color} roughness={0.25} />
-          </mesh>
-        ))}
-        {/* Stepped crown top - matching SVG notch */}
-        <mesh castShadow position={[0, 2.15, 0]}>
-          <boxGeometry args={[0.48, 0.3, 0.32]} />
-          <meshStandardMaterial color="#FFD070" roughness={0.25} />
-        </mesh>
-        <mesh castShadow position={[0, 2.4, 0]}>
-          <boxGeometry args={[0.25, 0.2, 0.22]} />
-          <meshStandardMaterial color="#FFE090" roughness={0.25} />
-        </mesh>
-      </ConstructionPiece>
-
-      {/* White horizontal slots - evenly spaced stripes */}
-      {[
-        { y: -2.45, w: 1.42 },
-        { y: -1.6, w: 1.35 },
-        { y: -0.8, w: 1.26 },
-        { y: -0.05, w: 1.16 },
-        { y: 0.6, w: 1.05 },
-        { y: 1.15, w: 0.92 },
-        { y: 1.6, w: 0.75 },
-        { y: 1.98, w: 0.55 },
-      ].map((slot, i) => (
-        <ConstructionPiece key={i} delay={0.55 + i * 0.05} from={[0, 0, 3]} scaleAnim>
-          <mesh position={[0, slot.y, 0.22]}>
-            <boxGeometry args={[slot.w, 0.08, 0.04]} />
-            <meshStandardMaterial color="#ffffff" />
-          </mesh>
-        </ConstructionPiece>
-      ))}
-    </group>
-  );
-};
-
-// --- PART 3: THE BLUE CURVED STRUCTURE (Right) - Connected arc system matching SVG ---
-const BlueTower = () => {
-  // Colors from SVG: #3B53A4, #4259A6, #435CA9, #3B53A1 (dark blue)
-  // #4A69B0, #455CA2, #5780BD, #557CBB (medium blue)
-  // #5F8DC7, #66A5D9 (light blue)
-  
-  return (
-    <group position={[0.4, 0, 0]}>
-      {/* Base structure with pillars */}
-      <group position={[0.8, -2.35, 0]}>
-        {/* Curved base connecting pillars - matching SVG curve */}
-        <ConstructionPiece delay={0.12} from={[4, -3, 0]}>
-          <mesh position={[0.35, -0.5, 0]} rotation={[0, 0, -0.1]}>
-            <torusGeometry args={[1.05, 0.1, 8, 32, Math.PI * 0.45]} />
-            <meshStandardMaterial color="#3B53A4" roughness={0.2} />
-          </mesh>
-        </ConstructionPiece>
-        
-        {/* Vertical pillars - matching SVG proportions */}
-        {[
-          { x: -0.45, h: 1.4, color: '#4259A6' },
-          { x: -0.02, h: 1.85, color: '#435CA9' },
-          { x: 0.38, h: 2.3, color: '#4A69B0' },
-          { x: 0.78, h: 2.75, color: '#5780BD' },
-          { x: 1.18, h: 3.25, color: '#5F8DC7' },
-        ].map((pillar, i) => (
-          <ConstructionPiece key={i} delay={0.18 + i * 0.07} from={[3, -4, 0]}>
-            <mesh position={[pillar.x, pillar.h / 2 - 0.35, 0]} castShadow>
-              <boxGeometry args={[0.1, pillar.h, 0.1]} />
-              <meshStandardMaterial color={pillar.color} roughness={0.2} />
-            </mesh>
-          </ConstructionPiece>
-        ))}
-      </group>
-
-      {/* Curved arcs wrapping around building - matching SVG WiFi signal shape */}
-      <group position={[-0.85, -0.2, -0.05]}>
-        {[
-          { radius: 1.85, tube: 0.11, color: '#3B53A1', angle: Math.PI * 0.55, rotZ: -0.05, offsetX: 0, offsetY: 0 },
-          { radius: 2.3, tube: 0.10, color: '#455CA2', angle: Math.PI * 0.52, rotZ: -0.03, offsetX: 0.03, offsetY: 0.05 },
-          { radius: 2.75, tube: 0.09, color: '#557CBB', angle: Math.PI * 0.50, rotZ: -0.02, offsetX: 0.06, offsetY: 0.1 },
-          { radius: 3.2, tube: 0.08, color: '#66A5D9', angle: Math.PI * 0.48, rotZ: -0.01, offsetX: 0.09, offsetY: 0.15 },
-        ].map((arc, i) => (
-          <ConstructionPiece key={i} delay={0.95 + i * 0.1} from={[3, 3, 0]} scaleAnim>
-            <mesh rotation={[0, 0, arc.rotZ]} position={[arc.offsetX, arc.offsetY, 0]}>
-              <torusGeometry args={[arc.radius, arc.tube, 16, 48, arc.angle]} />
-              <meshStandardMaterial color={arc.color} roughness={0.2} />
-            </mesh>
-          </ConstructionPiece>
-        ))}
-      </group>
-
-      {/* Top arc connector - tighter wrap matching SVG */}
-      <ConstructionPiece delay={1.4} from={[2, 4, 0]} scaleAnim>
-        <group position={[-1.0, 2.4, 0]}>
-          <mesh rotation={[0, 0, -0.12]}>
-            <torusGeometry args={[1.25, 0.1, 16, 32, Math.PI * 0.38]} />
-            <meshStandardMaterial color="#3B53A4" roughness={0.2} />
-          </mesh>
-        </group>
-      </ConstructionPiece>
-    </group>
-  );
-};
-
-// --- MAIN SCENE ---
-const LogoBuild3D = () => {
-  return (
-    <div className="w-full h-full">
-      <Canvas
-        shadows
-        camera={{ position: [0, 0, 12], fov: 40 }}
-        dpr={[1, 2]}
-        gl={{ antialias: true, alpha: true }}
-        style={{ background: 'transparent' }}
-      >
-        <Environment preset="studio" />
-        <ambientLight intensity={0.5} />
+        {/* Lighting tuned for glossy but still “real” */}
+        <ambientLight intensity={0.55} />
         <directionalLight
-          position={[5, 8, 6]}
-          intensity={1.2}
           castShadow
-          shadow-mapSize-width={1024}
-          shadow-mapSize-height={1024}
+          position={[6, 8, 5]}
+          intensity={1.2}
+          shadow-mapSize-width={2048}
+          shadow-mapSize-height={2048}
         />
-        <directionalLight position={[-4, 4, -4]} intensity={0.4} />
-        <spotLight position={[0, 10, 5]} intensity={0.6} color="#fff5e6" />
+        <directionalLight position={[-5, 2, -4]} intensity={0.35} />
 
-        <Float speed={1.5} rotationIntensity={0.08} floatIntensity={0.15}>
+        <Environment preset="studio" />
+
+        <Float speed={0.6} floatIntensity={0.18} rotationIntensity={0.12}>
           <Center>
-            <group scale={0.75} position={[0, 0.2, 0]}>
-              <Feather />
-              <OrangeBuilding />
-              <BlueTower />
-            </group>
+            <LogoExtrudedAnimated svgUrl={svgUrl} />
           </Center>
         </Float>
 
-        <ContactShadows
-          position={[0, -3.5, 0]}
-          opacity={0.4}
-          scale={15}
-          blur={2}
-          far={5}
-        />
+        <ContactShadows position={[0, -1.35, 0]} opacity={0.4} scale={10} blur={2.4} far={10} />
       </Canvas>
     </div>
   );
-};
+}
 
-export default LogoBuild3D;
+function LogoExtrudedAnimated({ svgUrl }: { svgUrl: string }) {
+  const groupRef = useRef<THREE.Group>(null);
+
+  const svg = useLoader(SVGLoader, svgUrl);
+
+  /**
+   * Build 3D meshes from SVG paths.
+   * This is what makes it match your original logo shape.
+   */
+  const built = useMemo(() => {
+    const root = new THREE.Group();
+    const meshes: { mesh: THREE.Mesh; tag: PartTag; order: number }[] = [];
+
+    const extrudeSettings: THREE.ExtrudeGeometryOptions = {
+      depth: 0.18,
+      bevelEnabled: true,
+      bevelThickness: 0.02,
+      bevelSize: 0.012,
+      bevelSegments: 2,
+    };
+
+    // Build each SVG path into one or more meshes
+    svg.paths.forEach((p, idx) => {
+      const shapes = SVGLoader.createShapes(p);
+
+      // SVG fill color if present (best)
+      const fill = (p.userData?.style?.fill || "").toString().toLowerCase();
+      const stroke = (p.userData?.style?.stroke || "").toString().toLowerCase();
+
+      const color = pickBestColor(fill, stroke, idx);
+
+      // Decide which major part this shape belongs to (for animation ordering)
+      const tag = classifyTag(color);
+
+      // Use a slightly different material per group for realism
+      const mat = materialFor(color, tag);
+
+      shapes.forEach((shape, sIdx) => {
+        const geom = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+        geom.computeVertexNormals();
+
+        const m = new THREE.Mesh(geom, mat);
+        m.castShadow = true;
+        m.receiveShadow = false;
+
+        // Order of assembly: blue -> orange -> feather -> details
+        const order = tag === "blue" ? 0 : tag === "orange" ? 1 : tag === "feather" ? 2 : 3;
+
+        meshes.push({ mesh: m, tag, order: order * 1000 + idx * 10 + sIdx });
+        root.add(m);
+      });
+    });
+
+    // Center and scale the whole logo to a nice hero size
+    const box = new THREE.Box3().setFromObject(root);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    root.position.sub(center);
+
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scale = 2.4 / maxDim; // fits hero nicely
+    root.scale.setScalar(scale);
+
+    // Give it a slight 3D tilt like the original “badge”
+    root.rotation.x = -0.14;
+    root.rotation.y = 0.18;
+
+    // Sort meshes by build order
+    meshes.sort((a, b) => a.order - b.order);
+
+    return { root, meshes };
+  }, [svg]);
+
+  // Animation loop: assemble -> hold -> reset
+  useFrame((state) => {
+    const g = groupRef.current;
+    if (!g) return;
+
+    // Gentle showroom rotation
+    g.rotation.y = 0.18 + Math.sin(state.clock.elapsedTime * 0.25) * 0.12;
+
+    const duration = 6.8; // build cycle
+    const hold = 0.6; // hold when finished
+    const total = duration + hold;
+
+    const t = state.clock.elapsedTime % total;
+
+    // 0..1 while building, then stays 1 during hold
+    const buildP = t < duration ? t / duration : 1;
+
+    const { meshes } = built;
+
+    meshes.forEach((item, i) => {
+      const mesh = item.mesh;
+
+      // stagger: each piece starts slightly after previous
+      const start = (i / meshes.length) * 0.75; // 75% of timeline used for staggering
+      const local = THREE.MathUtils.clamp((buildP - start) / 0.25, 0, 1);
+      const eased = easeOutCubic(local);
+
+      // spawn positions: come from above/side based on group
+      const seed = i * 97.13;
+      const sx = Math.sin(seed) * 0.7;
+      const sy = 1.4 + Math.cos(seed * 0.7) * 0.6;
+      const sz = 0.9;
+
+      mesh.position.set(
+        THREE.MathUtils.lerp(sx, 0, eased),
+        THREE.MathUtils.lerp(sy, 0, eased),
+        THREE.MathUtils.lerp(sz, 0, eased),
+      );
+
+      const s = THREE.MathUtils.lerp(0.02, 1.0, eased);
+      mesh.scale.setScalar(s);
+
+      const mat = mesh.material as THREE.MeshStandardMaterial;
+      mat.transparent = true;
+      mat.opacity = THREE.MathUtils.lerp(0, 1, eased);
+
+      // Quick “shine” near the end of build for realism
+      const shine = smoothstep(buildP, 0.82, 0.98);
+      mat.emissive = new THREE.Color("#ffffff");
+      mat.emissiveIntensity = 0.08 * shine;
+    });
+  });
+
+  return <primitive ref={groupRef} object={built.root} />;
+}
+
+function materialFor(color: THREE.Color, tag: PartTag) {
+  // Slightly different surfaces: glassy-ish feather, solid for orange, glossy for blue
+  if (tag === "feather") {
+    return new THREE.MeshPhysicalMaterial({
+      color,
+      roughness: 0.28,
+      metalness: 0.12,
+      clearcoat: 0.65,
+      clearcoatRoughness: 0.18,
+    });
+  }
+  if (tag === "blue") {
+    return new THREE.MeshStandardMaterial({
+      color,
+      roughness: 0.22,
+      metalness: 0.35,
+    });
+  }
+  if (tag === "orange") {
+    return new THREE.MeshStandardMaterial({
+      color,
+      roughness: 0.35,
+      metalness: 0.18,
+    });
+  }
+  return new THREE.MeshStandardMaterial({
+    color,
+    roughness: 0.5,
+    metalness: 0.1,
+  });
+}
+
+function classifyTag(color: THREE.Color): PartTag {
+  // Compare closeness to the main logo colors
+  const dO = color.distanceTo(ORANGE);
+  const dB = color.distanceTo(BLUE);
+
+  if (dO < 0.25) return "orange";
+  if (dB < 0.25) return "blue";
+
+  // Everything else (multi-color feather) falls here
+  return "feather";
+}
+
+function pickBestColor(fill: string, stroke: string, idx: number) {
+  // Best case: SVG paths keep original fills (recommended)
+  if (fill && fill !== "none") {
+    try {
+      return new THREE.Color(fill);
+    } catch {}
+  }
+  if (stroke && stroke !== "none") {
+    try {
+      return new THREE.Color(stroke);
+    } catch {}
+  }
+
+  // Fallback: if SVG lost fills, we approximate by index (not perfect)
+  // This is why providing a proper traced SVG is important.
+  if (idx < 10) return BLUE.clone();
+  if (idx < 20) return ORANGE.clone();
+
+  const featherPalette = ["#22c55e", "#06b6d4", "#f97316", "#ef4444", "#a855f7", "#f59e0b"];
+  return new THREE.Color(featherPalette[idx % featherPalette.length]);
+}
+
+function easeOutCubic(t: number) {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+function smoothstep(x: number, a: number, b: number) {
+  const t = THREE.MathUtils.clamp((x - a) / (b - a), 0, 1);
+  return t * t * (3 - 2 * t);
+}
