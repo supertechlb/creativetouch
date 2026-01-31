@@ -178,45 +178,45 @@ const OrangeBuilding = () => {
 // --- PART 3: THE BLUE CURVED TOWER (Right) ---
 const BlueTower = () => {
   return (
-    <group position={[1.6, 0, 0]}>
-      {/* Base with vertical pillars */}
-      <group position={[0.8, -2.2, 0]}>
+    <group position={[0.6, 0, -0.2]}>
+      {/* Base with vertical pillars - positioned closer to building */}
+      <group position={[1.0, -2.4, 0]}>
         {/* Bottom horizontal bar */}
         <ConstructionPiece delay={0.2} from={[4, -3, 0]}>
-          <mesh position={[0, -0.8, 0]}>
-            <boxGeometry args={[2.8, 0.35, 0.3]} />
+          <mesh position={[0.2, -0.6, 0]}>
+            <boxGeometry args={[2.4, 0.3, 0.25]} />
             <meshPhysicalMaterial color="#2563eb" roughness={0.2} clearcoat={0.8} />
           </mesh>
         </ConstructionPiece>
         
-        {/* Vertical pillars - arranged in a slight curve */}
+        {/* Vertical pillars - tighter arrangement */}
         {[
-          { x: -1.1, h: 2.2 },
-          { x: -0.5, h: 2.6 },
-          { x: 0.1, h: 3.0 },
-          { x: 0.7, h: 3.4 },
-          { x: 1.3, h: 3.8 },
+          { x: -0.8, h: 2.0 },
+          { x: -0.3, h: 2.4 },
+          { x: 0.2, h: 2.8 },
+          { x: 0.7, h: 3.2 },
+          { x: 1.2, h: 3.6 },
         ].map((pillar, i) => (
           <ConstructionPiece key={i} delay={0.3 + i * 0.1} from={[3, -4, 0]}>
-            <mesh position={[pillar.x, pillar.h / 2 - 0.6, 0]} castShadow>
-              <boxGeometry args={[0.22, pillar.h, 0.22]} />
+            <mesh position={[pillar.x, pillar.h / 2 - 0.4, 0]} castShadow>
+              <boxGeometry args={[0.18, pillar.h, 0.18]} />
               <meshPhysicalMaterial color="#2563eb" roughness={0.2} clearcoat={0.8} />
             </mesh>
           </ConstructionPiece>
         ))}
       </group>
 
-      {/* Curved arcs (the wifi-signal-like swoops) */}
-      <group position={[-0.8, -1.5, 0]}>
+      {/* Curved arcs - positioned to wrap around the orange building */}
+      <group position={[-1.2, -0.8, 0]}>
         {[
-          { radius: 2.8, tube: 0.18, color: '#1d4ed8' },
-          { radius: 3.4, tube: 0.16, color: '#2563eb' },
-          { radius: 4.0, tube: 0.14, color: '#3b82f6' },
-          { radius: 4.6, tube: 0.12, color: '#60a5fa' },
+          { radius: 2.0, tube: 0.16, color: '#1d4ed8', yOffset: 0 },
+          { radius: 2.5, tube: 0.14, color: '#2563eb', yOffset: 0.1 },
+          { radius: 3.0, tube: 0.12, color: '#3b82f6', yOffset: 0.2 },
+          { radius: 3.5, tube: 0.10, color: '#60a5fa', yOffset: 0.3 },
         ].map((arc, i) => (
-          <ConstructionPiece key={i} delay={1.2 + i * 0.15} from={[4, 4, 0]} scaleAnim>
-            <mesh rotation={[0, 0, -0.3]}>
-              <torusGeometry args={[arc.radius, arc.tube, 16, 48, Math.PI * 0.45]} />
+          <ConstructionPiece key={i} delay={1.2 + i * 0.12} from={[3, 3, 0]} scaleAnim>
+            <mesh rotation={[0, 0, -0.15]} position={[0, arc.yOffset, 0]}>
+              <torusGeometry args={[arc.radius, arc.tube, 16, 48, Math.PI * 0.52]} />
               <meshPhysicalMaterial 
                 color={arc.color} 
                 roughness={0.2} 
@@ -227,11 +227,11 @@ const BlueTower = () => {
         ))}
       </group>
 
-      {/* Top curved piece that goes around the building */}
-      <ConstructionPiece delay={1.8} from={[3, 3, 0]} scaleAnim>
-        <group position={[-1.5, 1.8, 0]}>
-          <mesh rotation={[0, 0, -0.5]}>
-            <torusGeometry args={[2.2, 0.2, 16, 32, Math.PI * 0.35]} />
+      {/* Top curved piece wrapping tightly around the building top */}
+      <ConstructionPiece delay={1.7} from={[2, 3, 0]} scaleAnim>
+        <group position={[-1.4, 2.2, 0]}>
+          <mesh rotation={[0, 0, -0.25]}>
+            <torusGeometry args={[1.6, 0.18, 16, 32, Math.PI * 0.4]} />
             <meshPhysicalMaterial color="#1e40af" roughness={0.2} clearcoat={0.9} />
           </mesh>
         </group>
