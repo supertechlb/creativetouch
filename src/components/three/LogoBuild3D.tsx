@@ -7,6 +7,8 @@ type PartTag = "feather" | "orange" | "blue" | "other";
 
 const ORANGE = new THREE.Color("#F47C20");
 const BLUE = new THREE.Color("#2F5BD3");
+const WHITE = new THREE.Color("#ffffff");
+const GREY = new THREE.Color("#808080");
 
 export default function LogoBuild3D({
   className = "w-full h-[420px]",
@@ -23,12 +25,11 @@ export default function LogoBuild3D({
         camera={{ position: [0, 0.9, 5.0], fov: 38 }} 
         style={{ background: 'transparent' }}
       >
-        {/* Bright direct lighting for saturated colors */}
         <ambientLight intensity={0.8} />
         <directionalLight position={[5, 5, 5]} intensity={1.5} />
         <directionalLight position={[-5, 3, -3]} intensity={0.8} />
 
-        <Float speed={0.6} floatIntensity={0.18} rotationIntensity={0.12}>
+        <Float speed={0.4} floatIntensity={0.1} rotationIntensity={0.05}>
           <Center>
             <LogoExtrudedAnimated svgUrl={svgUrl} />
           </Center>
@@ -36,6 +37,18 @@ export default function LogoBuild3D({
       </Canvas>
     </div>
   );
+}
+
+function isGreyOrWhite(color: THREE.Color): boolean {
+  // Check if color is close to white or grey (low saturation, high lightness)
+  const r = color.r, g = color.g, b = color.b;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const lightness = (max + min) / 2;
+  const saturation = max === min ? 0 : (max - min) / (1 - Math.abs(2 * lightness - 1));
+  
+  // Skip if very light (white) or low saturation (grey)
+  return (lightness > 0.85) || (saturation < 0.15 && lightness > 0.3);
 }
 
 function LogoExtrudedAnimated({ svgUrl }: { svgUrl: string }) {
@@ -62,8 +75,14 @@ function LogoExtrudedAnimated({ svgUrl }: { svgUrl: string }) {
       const stroke = (p.userData?.style?.stroke || "").toString().toLowerCase();
 
       const color = pickBestColor(fill, stroke, idx);
+      
+      // Skip white/grey meshes
+      if (isGreyOrWhite(color)) {
+        return;
+      }
+      
       const tag = classifyTag(color);
-      const mat = materialFor(color, tag);
+      const mat = materialFor(color);
 
       shapes.forEach((shape, sIdx) => {
         const geom = new THREE.ExtrudeGeometry(shape, extrudeSettings);
@@ -99,10 +118,11 @@ function LogoExtrudedAnimated({ svgUrl }: { svgUrl: string }) {
     const g = groupRef.current;
     if (!g) return;
 
-    g.rotation.y = Math.sin(state.clock.elapsedTime * 0.25) * 0.12;
+    // Very gentle rotation
+    g.rotation.y = Math.sin(state.clock.elapsedTime * 0.15) * 0.08;
 
-    const duration = 6.8;
-    const hold = 0.6;
+    const duration = 4.0; // Faster, smoother build
+    const hold = 3.0; // Longer hold when complete
     const total = duration + hold;
 
     const t = state.clock.elapsedTime % total;
@@ -113,14 +133,16 @@ function LogoExtrudedAnimated({ svgUrl }: { svgUrl: string }) {
     meshes.forEach((item, i) => {
       const mesh = item.mesh;
 
-      const start = (i / meshes.length) * 0.75;
-      const local = THREE.MathUtils.clamp((buildP - start) / 0.25, 0, 1);
-      const eased = easeOutCubic(local);
+      // Gentler staggering - pieces come in more gradually
+      const start = (i / meshes.length) * 0.6;
+      const local = THREE.MathUtils.clamp((buildP - start) / 0.4, 0, 1);
+      const eased = easeOutQuart(local); // Smoother easing
 
-      const seed = i * 97.13;
-      const sx = Math.sin(seed) * 0.7;
-      const sy = 1.4 + Math.cos(seed * 0.7) * 0.6;
-      const sz = 0.9;
+      // Gentler spawn positions - come from slightly above/behind
+      const seed = i * 37.7;
+      const sx = Math.sin(seed) * 0.3;
+      const sy = 0.8 + Math.cos(seed * 0.5) * 0.3;
+      const sz = 0.4;
 
       mesh.position.set(
         THREE.MathUtils.lerp(sx, 0, eased),
@@ -128,20 +150,19 @@ function LogoExtrudedAnimated({ svgUrl }: { svgUrl: string }) {
         THREE.MathUtils.lerp(sz, 0, eased),
       );
 
-      const s = THREE.MathUtils.lerp(0.02, 1.0, eased);
+      const s = THREE.MathUtils.lerp(0.5, 1.0, eased);
       mesh.scale.setScalar(s);
 
       const mat = mesh.material as THREE.MeshBasicMaterial;
       mat.transparent = true;
-      mat.opacity = THREE.MathUtils.lerp(0, 1, eased);
+      mat.opacity = THREE.MathUtils.lerp(0.3, 1, eased);
     });
   });
 
   return <primitive ref={groupRef} object={built.root} />;
 }
 
-function materialFor(color: THREE.Color, tag: PartTag) {
-  // Use MeshBasicMaterial for vibrant, unshaded colors (no lighting wash-out)
+function materialFor(color: THREE.Color) {
   return new THREE.MeshBasicMaterial({
     color,
     side: THREE.DoubleSide,
@@ -184,6 +205,7 @@ function pickBestColor(fill: string, stroke: string, idx: number) {
   return new THREE.Color(featherPalette[idx % featherPalette.length]);
 }
 
-function easeOutCubic(t: number) {
-  return 1 - Math.pow(1 - t, 3);
+// Smoother easing function
+function easeOutQuart(t: number) {
+  return 1 - Math.pow(1 - t, 4);
 }
