@@ -1,32 +1,34 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Environment, ContactShadows, Float } from '@react-three/drei';
+import { Environment, ContactShadows, Float, Center } from '@react-three/drei';
 import * as THREE from 'three';
 
 // --- ANIMATION CONFIG ---
-const ANIM_DURATION = 2;
+const ANIM_DURATION = 1.5;
 const RESTART_DELAY = 8;
 
-// --- HELPER: ANIMATED BLOCK ---
+// --- MATERIALS ---
+const materialProps = {
+  roughness: 0.15,
+  metalness: 0.2,
+  clearcoat: 1,
+  clearcoatRoughness: 0.1,
+};
+
+// --- HELPER: CONSTRUCTION PIECE ---
 const ConstructionPiece = ({ 
   children, 
   delay = 0, 
-  direction = 'up', 
-  distance = 5 
+  from = [0, 10, 0] as [number, number, number],
+  scaleAnim = false 
 }: { 
   children: React.ReactNode; 
   delay?: number; 
-  direction?: 'up' | 'down' | 'left' | 'right' | 'scale'; 
-  distance?: number 
+  from?: [number, number, number];
+  scaleAnim?: boolean;
 }) => {
   const group = useRef<THREE.Group>(null);
-  const [startPos] = useState(() => {
-    if (direction === 'up') return new THREE.Vector3(0, -distance, 0);
-    if (direction === 'down') return new THREE.Vector3(0, distance, 0);
-    if (direction === 'left') return new THREE.Vector3(distance, 0, 0);
-    if (direction === 'right') return new THREE.Vector3(-distance, 0, 0);
-    return new THREE.Vector3(0, 0, 0);
-  });
+  const startVec = new THREE.Vector3(...from);
 
   useFrame(({ clock }) => {
     if (!group.current) return;
@@ -38,23 +40,21 @@ const ConstructionPiece = ({
       const c4 = (2 * Math.PI) / 3;
       return x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1;
     };
-    
-    const eased = ease(progress);
+    const val = ease(progress);
 
-    if (direction === 'scale') {
-      group.current.scale.setScalar(eased);
-    } else {
-      group.current.position.x = THREE.MathUtils.lerp(startPos.x, 0, eased);
-      group.current.position.y = THREE.MathUtils.lerp(startPos.y, 0, eased);
-      group.current.position.z = THREE.MathUtils.lerp(startPos.z, 0, eased);
-      
-      group.current.children.forEach((child) => {
-        if ((child as THREE.Mesh).material) {
-          ((child as THREE.Mesh).material as THREE.Material).opacity = Math.max(0, Math.min(1, progress * 2));
-          ((child as THREE.Mesh).material as THREE.Material).transparent = true;
-        }
-      });
+    group.current.position.lerpVectors(startVec, new THREE.Vector3(0, 0, 0), val);
+
+    if (scaleAnim) {
+      group.current.scale.setScalar(val);
     }
+    
+    group.current.children.forEach((child) => {
+      if ((child as THREE.Mesh).material) {
+        const mat = (child as THREE.Mesh).material as THREE.MeshPhysicalMaterial;
+        mat.transparent = true;
+        mat.opacity = Math.max(0, Math.min(1, progress * 3));
+      }
+    });
   });
 
   return <group ref={group}>{children}</group>;
@@ -62,58 +62,56 @@ const ConstructionPiece = ({
 
 // --- PART 1: THE FEATHER (Left) ---
 const Feather = () => {
-  const segments = useMemo(() => [
-    { color: '#8e44ad', rot: [0, 0, 0.2], scale: 0.8 },
-    { color: '#2980b9', rot: [0, 0, 0.1], scale: 1.0 },
-    { color: '#1abc9c', rot: [0, 0, 0], scale: 1.1 },
-    { color: '#f39c12', rot: [0, 0, -0.1], scale: 1.0 },
-    { color: '#c0392b', rot: [0, 0, -0.2], scale: 0.7 },
-  ], []);
+  const segments = [
+    { color: '#8e44ad', pos: [-0.2, 2.2, 0] as [number, number, number], rot: [0, 0, 0.4] as [number, number, number], scale: [0.8, 1, 0.2] as [number, number, number] },
+    { color: '#2980b9', pos: [-0.4, 1.3, 0] as [number, number, number], rot: [0, 0, 0.25] as [number, number, number], scale: [0.9, 1.1, 0.2] as [number, number, number] },
+    { color: '#1abc9c', pos: [-0.5, 0.3, 0] as [number, number, number], rot: [0, 0, 0.1] as [number, number, number], scale: [1.0, 1.2, 0.2] as [number, number, number] },
+    { color: '#f39c12', pos: [-0.5, -0.8, 0] as [number, number, number], rot: [0, 0, -0.1] as [number, number, number], scale: [0.9, 1.1, 0.2] as [number, number, number] },
+    { color: '#e74c3c', pos: [-0.3, -1.8, 0] as [number, number, number], rot: [0, 0, -0.3] as [number, number, number], scale: [0.8, 1, 0.2] as [number, number, number] },
+  ];
 
   return (
-    <group position={[-2.5, 0, 0]}>
+    <group position={[-2.2, 0, 0]}>
       {segments.map((seg, i) => (
-        <ConstructionPiece key={i} delay={0.5 + i * 0.15} direction="left" distance={3}>
-          <group position={[0, 1.5 - i * 0.8, 0]} rotation={[seg.rot[0], seg.rot[1], seg.rot[2]]} scale={seg.scale}>
-            <mesh castShadow position={[0, 0.3, 0]}>
-              <coneGeometry args={[0.4, 0.8, 4]} />
-              <meshPhysicalMaterial color={seg.color} roughness={0.2} metalness={0.1} clearcoat={1} />
+        <ConstructionPiece key={i} delay={i * 0.15} from={[-5, (2 - i) * 2, 0]} scaleAnim>
+          <group position={seg.pos} rotation={seg.rot}>
+            <mesh castShadow receiveShadow scale={seg.scale}>
+              <cylinderGeometry args={[0, 1, 1.5, 4, 1]} />
+              <meshPhysicalMaterial color={seg.color} {...materialProps} side={THREE.DoubleSide} />
             </mesh>
-            <mesh castShadow position={[0, -0.3, 0]} rotation={[Math.PI, 0, 0]}>
-              <coneGeometry args={[0.4, 0.8, 4]} />
-              <meshPhysicalMaterial color={seg.color} roughness={0.2} metalness={0.1} clearcoat={1} />
+            <mesh castShadow receiveShadow scale={seg.scale} rotation={[Math.PI, 0, 0]} position={[0, -1.5, 0]}>
+              <cylinderGeometry args={[0, 1, 1.5, 4, 1]} />
+              <meshPhysicalMaterial color={seg.color} {...materialProps} side={THREE.DoubleSide} />
             </mesh>
           </group>
         </ConstructionPiece>
       ))}
-      <ConstructionPiece delay={1.3} direction="up" distance={4}>
-        <mesh castShadow position={[0.1, -2.5, 0]} rotation={[0, 0, 0.1]}>
-          <cylinderGeometry args={[0.03, 0.05, 1.5, 8]} />
-          <meshPhysicalMaterial color="#c0392b" roughness={0.3} metalness={0.2} />
+      <ConstructionPiece delay={1.2} from={[0, -5, 0]}>
+        <mesh position={[-0.1, -3, 0]} rotation={[0, 0, -0.3]}>
+          <cylinderGeometry args={[0.08, 0.02, 2.5, 8]} />
+          <meshStandardMaterial color="#ecf0f1" />
         </mesh>
       </ConstructionPiece>
     </group>
   );
 };
 
-// --- PART 2: THE TOWER (Center) ---
-const Tower = () => {
-  const slots = useMemo(() => [-1, 0, 1, 2, 3], []);
-
+// --- PART 2: THE BUILDING (Center) ---
+const Building = () => {
   return (
-    <group position={[0, 0, 0]}>
-      <ConstructionPiece delay={0} direction="up" distance={5}>
-        <mesh castShadow position={[0, 0, 0]}>
-          <cylinderGeometry args={[0.6, 0.8, 4, 4]} />
-          <meshPhysicalMaterial color="#ff7a18" roughness={0.2} metalness={0.1} clearcoat={1} emissive="#ff5a00" emissiveIntensity={0.1} />
+    <group position={[0, -0.5, 0]}>
+      <ConstructionPiece delay={0.5} from={[0, 10, 0]}>
+        <mesh position={[0, 0, 0]} castShadow receiveShadow>
+          <cylinderGeometry args={[1.1, 1.4, 6, 4]} />
+          <meshPhysicalMaterial color="#ff9f43" {...materialProps} flatShading={false} />
         </mesh>
       </ConstructionPiece>
 
-      {slots.map((y, i) => (
-        <ConstructionPiece key={i} delay={0.3 + i * 0.1} direction="right" distance={2}>
-          <mesh castShadow position={[0, y * 0.6, 0.5]}>
-            <boxGeometry args={[1.2, 0.15, 0.1]} />
-            <meshPhysicalMaterial color="#ffffff" roughness={0.3} metalness={0.1} />
+      {[2, 1, 0, -1, -2].map((y, i) => (
+        <ConstructionPiece key={i} delay={1.0 + i * 0.1} from={[0, 0, 5]} scaleAnim>
+          <mesh position={[0, y * 0.9, 0.9]}>
+            <boxGeometry args={[1.5 + i * 0.1, 0.25, 0.2]} />
+            <meshStandardMaterial color="white" />
           </mesh>
         </ConstructionPiece>
       ))}
@@ -121,51 +119,41 @@ const Tower = () => {
   );
 };
 
-// --- PART 3: THE BLUE SAIL/CURVE (Right) ---
-const BlueSail = () => {
-  const curves = useMemo(() => [
-    { radius: 3, tube: 0.3, pos: [1.2, -2, 0] as [number, number, number] },
-    { radius: 3.5, tube: 0.25, pos: [1.2, -1.5, 0] as [number, number, number] },
-    { radius: 4, tube: 0.2, pos: [1.2, -1.0, 0] as [number, number, number] },
-    { radius: 4.5, tube: 0.15, pos: [1.2, -0.5, 0] as [number, number, number] },
-  ], []);
-
-  const pillars = useMemo(() => [-1, -0.3, 0.3, 1], []);
-
+// --- PART 3: THE BLUE WING (Right) ---
+const BlueWing = () => {
   return (
-    <group position={[2.2, 0, 0]}>
-      <ConstructionPiece delay={0.2} direction="down" distance={4}>
-        <group>
-          <mesh castShadow position={[0, -1.5, 0]}>
-            <boxGeometry args={[2.5, 0.3, 0.3]} />
-            <meshPhysicalMaterial color="#2f61d5" roughness={0.2} metalness={0.1} clearcoat={1} />
+    <group position={[1.8, 0, 0]}>
+      <group position={[0.5, -3.2, 0]}>
+        {[0, 1, 2, 3].map((i) => (
+          <ConstructionPiece key={i} delay={0.2 + i * 0.1} from={[5, -5, 0]}>
+            <mesh position={[i * 0.6, i * 0.2, 0]} castShadow>
+              <boxGeometry args={[0.4, 2 + i * 0.3, 0.4]} />
+              <meshPhysicalMaterial color="#2980b9" {...materialProps} />
+            </mesh>
+          </ConstructionPiece>
+        ))}
+        <ConstructionPiece delay={0.8} from={[5, 0, 0]}>
+          <mesh position={[1.2, -0.8, 0]} rotation={[0, 0, 0.2]}>
+            <boxGeometry args={[3.5, 0.5, 0.4]} />
+            <meshPhysicalMaterial color="#2980b9" {...materialProps} />
           </mesh>
-          {pillars.map((x, i) => (
-            <mesh key={i} castShadow position={[x, -0.5, 0]}>
-              <boxGeometry args={[0.15, 2, 0.15]} />
-              <meshPhysicalMaterial color="#2f61d5" roughness={0.2} metalness={0.1} clearcoat={1} />
-            </mesh>
-          ))}
-        </group>
-      </ConstructionPiece>
-
-      {curves.map((c, i) => (
-        <ConstructionPiece key={i} delay={0.6 + i * 0.2} direction="scale" distance={1}>
-          <group position={c.pos} rotation={[0, 0, -Math.PI / 2]}>
-            <mesh castShadow>
-              <torusGeometry args={[c.radius * 0.35, c.tube, 16, 32, Math.PI / 2]} />
-              <meshPhysicalMaterial color="#2f61d5" roughness={0.2} metalness={0.1} clearcoat={1} />
-            </mesh>
-          </group>
         </ConstructionPiece>
-      ))}
-      
-      <ConstructionPiece delay={1.5} direction="left" distance={3}>
-        <mesh castShadow position={[1.2, 0.5, 0]} rotation={[0, 0, 0.3]}>
-          <cylinderGeometry args={[0.2, 0.3, 3.5, 16]} />
-          <meshPhysicalMaterial color="#5b8def" roughness={0.2} metalness={0.1} clearcoat={1} />
-        </mesh>
-      </ConstructionPiece>
+      </group>
+
+      <group position={[-1, -2, 0]}>
+        {[
+          { r: 4.5, t: 0.25, c: '#3498db' },
+          { r: 5.5, t: 0.20, c: '#54a0ff' },
+          { r: 6.5, t: 0.15, c: '#74b9ff' }
+        ].map((arc, i) => (
+          <ConstructionPiece key={i} delay={1.5 + i * 0.2} from={[5, 5, 0]} scaleAnim>
+            <mesh position={[0, 0, 0]} rotation={[0, 0, 0.5]}>
+              <torusGeometry args={[arc.r, arc.t, 16, 64, Math.PI / 2.5]} />
+              <meshPhysicalMaterial color={arc.c} {...materialProps} />
+            </mesh>
+          </ConstructionPiece>
+        ))}
+      </group>
     </group>
   );
 };
@@ -175,27 +163,40 @@ const LogoBuild3D = () => {
   return (
     <div className="w-full h-full">
       <Canvas
-        dpr={[1, 2]}
         shadows
-        camera={{ position: [0, 0, 12], fov: 45 }}
+        camera={{ position: [0, 0, 14], fov: 35 }}
+        dpr={[1, 2]}
         gl={{ antialias: true, alpha: true }}
         style={{ background: 'transparent' }}
       >
-        <ambientLight intensity={0.5} />
-        <directionalLight castShadow position={[5, 8, 5]} intensity={1.2} shadow-mapSize-width={2048} shadow-mapSize-height={2048} />
-        <directionalLight position={[-5, 4, -3]} intensity={0.4} />
+        <Environment preset="studio" />
+        <ambientLight intensity={0.6} />
+        <directionalLight
+          position={[5, 10, 7]}
+          intensity={1.5}
+          castShadow
+          shadow-mapSize-width={1024}
+          shadow-mapSize-height={1024}
+        />
+        <spotLight position={[-10, 0, 5]} intensity={0.5} color="white" />
 
-        <Environment preset="city" />
-
-        <Float speed={0.5} rotationIntensity={0.15} floatIntensity={0.2}>
-          <group scale={0.85} position={[0, 0.3, 0]}>
-            <Feather />
-            <Tower />
-            <BlueSail />
-          </group>
+        <Float speed={2} rotationIntensity={0.1} floatIntensity={0.2}>
+          <Center>
+            <group scale={0.8}>
+              <Feather />
+              <Building />
+              <BlueWing />
+            </group>
+          </Center>
         </Float>
 
-        <ContactShadows position={[0, -2.5, 0]} opacity={0.4} scale={10} blur={2.5} far={6} />
+        <ContactShadows
+          position={[0, -4, 0]}
+          opacity={0.5}
+          scale={20}
+          blur={2.5}
+          far={5}
+        />
       </Canvas>
     </div>
   );
