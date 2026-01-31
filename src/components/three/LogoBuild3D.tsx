@@ -2,8 +2,7 @@ import React, { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { Center, ContactShadows, Environment, Float } from "@react-three/drei";
-import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader";
-
+import { SVGLoader } from "three/addons/loaders/SVGLoader.js";
 type PartTag = "feather" | "orange" | "blue" | "other";
 
 const ORANGE = new THREE.Color("#F47C20"); // closer to your logo orange
@@ -207,10 +206,17 @@ function materialFor(color: THREE.Color, tag: PartTag) {
   });
 }
 
+function colorDistance(c1: THREE.Color, c2: THREE.Color): number {
+  const dr = c1.r - c2.r;
+  const dg = c1.g - c2.g;
+  const db = c1.b - c2.b;
+  return Math.sqrt(dr * dr + dg * dg + db * db);
+}
+
 function classifyTag(color: THREE.Color): PartTag {
   // Compare closeness to the main logo colors
-  const dO = color.distanceTo(ORANGE);
-  const dB = color.distanceTo(BLUE);
+  const dO = colorDistance(color, ORANGE);
+  const dB = colorDistance(color, BLUE);
 
   if (dO < 0.25) return "orange";
   if (dB < 0.25) return "blue";
