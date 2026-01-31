@@ -1,143 +1,114 @@
 
-# Immersive Building Interior Scrollytelling
+# Fullscreen Scrollytelling with Immersive Background Transitions
 
-## Overview
-Replace the external 3D building model with a **full-screen immersive scroll experience** where users feel like they're inside a building, descending floor-by-floor as they scroll. Each floor reveals different rooms with interior design images and decorations.
+## What You'll Get
+A cinematic scroll experience where each floor is a **fullscreen background image** that transitions smoothly as you scroll. Instead of room cards on a page, the entire screen becomes the room itself - like walking through a building.
 
-## Visual Concept
+## Visual Experience
+
 ```text
-+----------------------------------------------------------+
-|  ROOF/STARTING POINT - Welcome Message                   |
-|  ========================================================|
-|                                                          |
-|  FLOOR 5: Penthouse Suite                                |
-|  ┌─────────────────────────────────────────────────────┐ |
-|  │  [Living Room Image]    [Terrace Image]             │ |
-|  │       "Luxury Living"                               │ |
-|  └─────────────────────────────────────────────────────┘ |
-|                                                          |
-|  ──────── FLOOR DIVIDER (architectural element) ──────── |
-|                                                          |
-|  FLOOR 4: Creative Studio                                |
-|  ┌─────────────────────────────────────────────────────┐ |
-|  │  [Office Image]    [Meeting Room Image]             │ |
-|  │       "Where Ideas Come to Life"                    │ |
-|  └─────────────────────────────────────────────────────┘ |
-|                                                          |
-|  ... continues for each floor ...                        |
-|                                                          |
-|  FLOOR 1: Ground Floor / Lobby                           |
-|  ┌─────────────────────────────────────────────────────┐ |
-|  │  [Reception Image]    [Entrance Image]              │ |
-|  │       "Welcome to Creative Touch"                   │ |
-|  └─────────────────────────────────────────────────────┘ |
-+----------------------------------------------------------+
++--------------------------------------------------+
+|                                                  |
+|   ████████████ ROOF IMAGE ██████████████████     |
+|   ██████████ (Rooftop View) █████████████████    |
+|   ████████████████████████████████████████████   |
+|   ███████████████████ ███████████████████████    |
+|              "Welcome to the Top"                |
+|              [Floor 5 Indicator]                 |
++--------------------------------------------------+
+         ↓ SCROLL DOWN ↓
++--------------------------------------------------+
+|                                                  |
+|   ████████ LIVING ROOM IMAGE ████████████████    |
+|   ██████████ (Penthouse) ████████████████████    |
+|   ████████████████████████████████████████████   |
+|              "Luxury Living"                     |
+|              [Floor 4 Indicator]                 |
++--------------------------------------------------+
+         ↓ SCROLL DOWN ↓
++--------------------------------------------------+
+|                                                  |
+|   ████████████ KITCHEN IMAGE ████████████████    |
+|   ██████████████████████████████████████████     |
+|              "Gourmet Space"                     |
+|              [Floor 3 Indicator]                 |
++--------------------------------------------------+
 ```
 
-## Implementation Plan
+## How It Works
+1. **Sticky Container**: A fullscreen container stays fixed while you scroll
+2. **Background Layers**: Multiple full-screen images stacked, each fading in/out based on scroll position
+3. **Content Overlays**: Minimal text labels appear on top of each background
+4. **Smooth Crossfade**: As you scroll past threshold points, one image fades out while the next fades in
 
-### 1. Remove 3D Components
-- Delete `Building3D.tsx` (the external 3D skyscraper)
-- Delete `HeroScene.tsx` (the Three.js canvas wrapper)
-- Keep Three.js dependencies for the Studio walkthrough feature
+## Floor Sequence (7 Rooms)
+| Floor | Room Type | Background Image |
+|-------|-----------|------------------|
+| 7 | Rooftop Terrace | Luxury rooftop with city views |
+| 6 | Penthouse Living | Modern open-concept living room |
+| 5 | Kitchen | High-end gourmet kitchen |
+| 4 | Master Bedroom | Elegant bedroom suite |
+| 3 | Office | Creative workspace/studio |
+| 2 | Villa Exterior | Mediterranean villa outdoor |
+| 1 | Grand Lobby | Reception hall entrance |
 
-### 2. Create New Building Interior Component
-**New file: `src/components/BuildingInterior.tsx`**
-
-This will be a full-screen scrollytelling component featuring:
-- **Architectural frame elements**: Decorative pillars, floor dividers, elevator shaft visual on the side
-- **Floor sections**: Each floor is a full viewport height (100vh) with room images
-- **Parallax effects**: Images move at different speeds for depth
-- **Floor indicator**: A fixed indicator showing current floor (like an elevator display)
-- **Scroll-triggered animations**: Rooms fade/slide in as you scroll to them
-
-### 3. Define Floor/Room Data Structure
-```typescript
-interface Room {
-  name: string;
-  image: string;
-  description: string;
-}
-
-interface Floor {
-  number: number;
-  name: string;
-  tagline: string;
-  rooms: Room[];
-  accentColor: 'primary' | 'secondary' | 'accent';
-}
-```
-
-**5 Floors with different themes:**
-1. **Penthouse**: Luxury residential showcase
-2. **Creative Studio**: Open workspace design
-3. **Living Spaces**: Modern apartments
-4. **Commercial**: Office/retail design
-5. **Lobby**: Grand entrance, reception
-
-### 4. Redesign HeroSection
-**Modify: `src/components/HeroSection.tsx`**
-
-- Remove the 3D canvas and `HeroScene` import
-- Make the hero a simple welcome intro that transitions into the building
-- Add a "Begin Tour" CTA that smooth-scrolls into the building interior
-- Keep the stats and branding elements
-
-### 5. Visual Effects & Animations
-- **Floor transitions**: Smooth crossfade with vertical slide
-- **Room reveals**: Staggered entrance animations using Framer Motion
-- **Parallax layers**: Background architectural elements move slower than content
-- **Floor dividers**: Decorative horizontal elements with the brand colors (orange/blue gradients)
-- **Ambient details**: Subtle floating particles or light rays for atmosphere
-
-### 6. Floor Indicator Component
-**New file: `src/components/FloorIndicator.tsx`**
-
-A fixed sidebar/corner element showing:
-- Current floor number (large display)
-- Floor name
-- Progress dots or mini elevator visualization
-- Styled like a building directory
+---
 
 ## Technical Details
 
-### Files to Create
-| File | Purpose |
-|------|---------|
-| `src/components/BuildingInterior.tsx` | Main scrollytelling container with all floors |
-| `src/components/FloorSection.tsx` | Individual floor layout with rooms |
-| `src/components/FloorIndicator.tsx` | Fixed elevator-style floor display |
-| `src/components/RoomCard.tsx` | Image card for each room with hover effects |
+### Architecture Change
+Replace the current card-based layout with a **sticky scroll container** where:
+- One container is `position: fixed` at `100vh` height
+- A scroll spacer creates the scroll height (7 floors x 100vh)
+- Scroll progress controls which background is visible
 
 ### Files to Modify
-| File | Changes |
-|------|---------|
-| `src/components/HeroSection.tsx` | Remove 3D scene, simplify to intro + CTA |
-| `src/pages/Index.tsx` | Add `BuildingInterior` between Hero and Services |
+
+**`src/components/BuildingInterior.tsx`** (Complete Rewrite)
+- Create a sticky fullscreen container
+- Stack 7 background image layers with absolute positioning
+- Track scroll progress to control opacity of each layer
+- Add minimal text overlay for room names
+
+**`src/components/FloorIndicator.tsx`** (Minor Updates)
+- Keep the elevator-style indicator
+- Update to work with the new 7-floor structure
 
 ### Files to Delete
-| File | Reason |
-|------|--------|
-| `src/components/Building3D.tsx` | Replaced by interior experience |
-| `src/components/HeroScene.tsx` | No longer needed |
+- `src/components/FloorSection.tsx` - No longer needed (floors are now backgrounds)
+- `src/components/RoomCard.tsx` - No longer needed (no cards, just fullscreen images)
 
-### Room Images
-Will use high-quality Unsplash interior design images:
-- Living rooms, bedrooms, offices
-- Reception areas, meeting rooms
-- Kitchens, terraces, creative studios
+### Key Implementation Details
 
-### Scroll Behavior
-- Each floor = `100vh` height
-- `useScroll` from Framer Motion tracks position
-- Floor transitions use `useTransform` for smooth opacity/position changes
-- Snap scrolling optional (can be added later)
+**Scroll-to-Opacity Mapping:**
+```typescript
+// Each floor occupies ~14% of total scroll (1/7)
+// When scroll is 0-14%: Floor 7 visible
+// When scroll is 14-28%: Crossfade to Floor 6
+// etc.
+```
 
-## User Experience Flow
-1. Land on page → See hero with "Welcome to Creative Touch"
-2. Scroll down → Enter the building from the roof
-3. Continue scrolling → Descend through each floor
-4. Each floor showcases different room types with beautiful interior images
-5. Exit building → Continue to Services, Studio, Contact sections
+**Fullscreen Background Styling:**
+```css
+.floor-background {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+```
 
-This creates an **immersive, memorable experience** that showcases interior design capabilities while maintaining the clean, premium aesthetic.
+**Text Overlay:**
+- Semi-transparent dark gradient at bottom for text readability
+- Large floor name + short tagline
+- Positioned center or bottom of screen
+
+### Image Selection
+Will use stunning Unsplash images for each room:
+- Rooftop: Dramatic sky terrace
+- Living Room: Bright modern interior
+- Kitchen: Marble counters, premium appliances
+- Bedroom: Cozy, elegant suite
+- Office: Inspiring workspace
+- Villa: Mediterranean outdoor beauty
+- Lobby: Grand architectural entrance
