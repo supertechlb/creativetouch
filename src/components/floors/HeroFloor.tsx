@@ -1,6 +1,6 @@
 import { Suspense, lazy } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowDown, Building2, Users, Award, Sparkles } from 'lucide-react';
+import { ArrowDown, Building2, Users, Award } from 'lucide-react';
 import { Button } from '../ui/button';
 
 const ConstructionBuilding = lazy(() => import('../three/ConstructionBuilding'));
@@ -10,109 +10,93 @@ interface HeroFloorProps {
 }
 
 const stats = [
-  { icon: Building2, value: '150+', label: 'Projects' },
-  { icon: Users, value: '80+', label: 'Clients' },
-  { icon: Award, value: '15+', label: 'Years' },
+  { icon: Building2, value: '150+', label: 'Projects Completed' },
+  { icon: Users, value: '80+', label: 'Satisfied Clients' },
+  { icon: Award, value: '15+', label: 'Years Experience' },
 ];
 
 const HeroFloor = ({ onScrollToNext }: HeroFloorProps) => {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-background via-background to-muted/20">
-      {/* 3D Background */}
-      <Suspense fallback={
-        <div className="absolute inset-0 bg-gradient-to-br from-muted/20 via-primary/5 to-secondary/10" />
-      }>
-        <ConstructionBuilding />
-      </Suspense>
-
-      {/* Gradient overlays */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/40 to-background/80 pointer-events-none z-10" />
-      <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-background/60 pointer-events-none z-10" />
-
-      {/* Orange construction accent lines */}
-      <div className="absolute inset-0 pointer-events-none z-5 overflow-hidden">
-        {[...Array(5)].map((_, i) => (
-          <motion.div
-            key={i}
-            initial={{ x: '-100%', opacity: 0 }}
-            animate={{ x: '200%', opacity: [0, 1, 1, 0] }}
-            transition={{
-              duration: 3,
-              delay: i * 0.5,
-              repeat: Infinity,
-              repeatDelay: 2,
-            }}
-            className="absolute h-px w-1/3 bg-gradient-to-r from-transparent via-primary to-transparent"
-            style={{ top: `${20 + i * 15}%` }}
-          />
-        ))}
-      </div>
+    <section className="relative min-h-screen bg-white overflow-hidden">
+      {/* Subtle gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-50/50 via-white to-slate-50/30 pointer-events-none" />
 
       {/* Content */}
-      <div className="relative z-20 min-h-screen flex items-center justify-center px-4 sm:px-6 py-20">
-        <div className="max-w-5xl mx-auto text-center">
-          {/* Badge */}
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 py-20">
+        <div className="max-w-6xl mx-auto text-center">
+          
+          {/* 3D Model Container - Prominent and Above Title */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8 }}
+            className="relative w-full max-w-lg mx-auto h-[320px] sm:h-[380px] mb-8"
           >
-            <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/15 border border-primary/30 text-primary text-sm font-semibold mb-8 backdrop-blur-sm">
-              <Sparkles className="w-4 h-4" />
-              Engineering Excellence
-            </span>
+            <Suspense fallback={
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="w-20 h-20 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+              </div>
+            }>
+              <ConstructionBuilding />
+            </Suspense>
           </motion.div>
 
-          {/* Headline */}
+          {/* Headline - SEO Optimized */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-bold text-foreground leading-[1.1] mb-6"
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold text-slate-900 leading-[1.1] mb-4"
           >
-            <span className="block">Building the</span>
-            <span className="text-gradient-primary">Future</span>
+            Premium{' '}
+            <span className="text-primary">Architectural Design</span>
+            <br />
+            & Engineering Solutions
           </motion.h1>
 
-          {/* Subtitle */}
+          {/* Subtitle - Keywords */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-xl sm:text-2xl md:text-3xl text-muted-foreground font-light mb-4"
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="text-lg sm:text-xl text-slate-600 font-medium mb-4"
           >
-            One Floor at a Time
+            Structural Engineering • Construction Management • MEP Design
           </motion.p>
 
           {/* Description */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="text-base sm:text-lg text-slate-500 max-w-2xl mx-auto mb-10 leading-relaxed"
           >
-            From concept to completion — we transform your vision into 
-            extraordinary architectural masterpieces through innovative engineering.
+            Transform your vision into extraordinary architectural masterpieces. 
+            From project planning to renovation, we deliver comprehensive engineering 
+            solutions for residential and commercial projects.
           </motion.p>
 
           {/* CTA Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="flex flex-wrap justify-center gap-4 mb-16"
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="flex flex-wrap justify-center gap-4 mb-14"
           >
             <Button 
-              variant="hero" 
-              size="xl" 
-              className="group shadow-2xl shadow-primary/20"
+              size="lg" 
+              className="bg-primary hover:bg-primary/90 text-white font-semibold px-8 py-6 text-lg shadow-xl shadow-primary/25 group"
               onClick={onScrollToNext}
             >
-              <span>Begin Tour</span>
+              <span>Explore Services</span>
               <ArrowDown className="ml-2 w-5 h-5 group-hover:translate-y-1 transition-transform" />
             </Button>
-            <Button variant="heroOutline" size="xl" className="backdrop-blur-sm">
-              View Our Work
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="border-2 border-slate-300 text-slate-700 hover:bg-slate-100 hover:border-slate-400 font-semibold px-8 py-6 text-lg"
+            >
+              View Projects
             </Button>
           </motion.div>
 
@@ -120,25 +104,25 @@ const HeroFloor = ({ onScrollToNext }: HeroFloorProps) => {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="flex flex-wrap justify-center gap-8 md:gap-12"
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="flex flex-wrap justify-center gap-6 md:gap-10"
           >
             {stats.map((stat, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
-                className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-card/60 backdrop-blur-xl border border-border/50 shadow-lg hover:shadow-xl hover:border-primary/30 transition-all duration-300"
+                transition={{ duration: 0.5, delay: 0.7 + index * 0.1 }}
+                className="flex items-center gap-3 px-5 py-4 rounded-2xl bg-white border border-slate-200 shadow-lg hover:shadow-xl hover:border-primary/30 transition-all duration-300"
               >
-                <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center shadow-lg">
-                  <stat.icon className="w-6 h-6 text-primary-foreground" />
+                <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-lg">
+                  <stat.icon className="w-6 h-6 text-white" />
                 </div>
                 <div className="text-left">
-                  <div className="text-2xl font-bold text-foreground font-display">
+                  <div className="text-2xl font-bold text-slate-900 font-display">
                     {stat.value}
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm text-slate-600">
                     {stat.label}
                   </div>
                 </div>
@@ -152,13 +136,13 @@ const HeroFloor = ({ onScrollToNext }: HeroFloorProps) => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
+        transition={{ delay: 1.2 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
       >
         <motion.div
           animate={{ y: [0, 10, 0] }}
           transition={{ repeat: Infinity, duration: 1.5 }}
-          className="flex flex-col items-center gap-2 text-muted-foreground cursor-pointer hover:text-primary transition-colors"
+          className="flex flex-col items-center gap-2 text-slate-500 cursor-pointer hover:text-primary transition-colors"
           onClick={onScrollToNext}
         >
           <span className="text-xs font-medium uppercase tracking-widest">Scroll to Explore</span>
@@ -171,7 +155,7 @@ const HeroFloor = ({ onScrollToNext }: HeroFloorProps) => {
           </div>
         </motion.div>
       </motion.div>
-    </div>
+    </section>
   );
 };
 
