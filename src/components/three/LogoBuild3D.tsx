@@ -17,8 +17,7 @@ export default function LogoBuild3D({
 }) {
   return (
     <div className={className}>
-      <Canvas shadows dpr={[1, 2]} gl={{ antialias: true, alpha: true }} camera={{ position: [0, 0.9, 5.0], fov: 38 }}>
-        <color attach="background" args={["#ffffff"]} />
+      <Canvas shadows dpr={[1, 2]} gl={{ antialias: true, alpha: true }} camera={{ position: [0, 0.9, 5.0], fov: 38 }} style={{ background: 'transparent' }}>
 
         {/* Lighting tuned for glossy but still “real” */}
         <ambientLight intensity={0.55} />
