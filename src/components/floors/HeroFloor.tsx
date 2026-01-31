@@ -3,8 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowDown, Building2, Users, Award } from 'lucide-react';
 import { Button } from '../ui/button';
 
-const ConstructionBuilding = lazy(() => import('../three/ConstructionBuilding'));
-
+const LogoBuild3D = lazy(() => import('../three/LogoBuild3D'));
 interface HeroFloorProps {
   onScrollToNext?: () => void;
 }
@@ -37,7 +36,7 @@ const HeroFloor = ({ onScrollToNext }: HeroFloorProps) => {
                 <div className="w-20 h-20 border-4 border-primary border-t-transparent rounded-full animate-spin" />
               </div>
             }>
-              <ConstructionBuilding />
+              <LogoBuild3D />
             </Suspense>
           </motion.div>
 
