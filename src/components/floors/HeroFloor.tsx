@@ -1,158 +1,257 @@
-import { Suspense, lazy } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowDown, Building2, Users, Award } from 'lucide-react';
+import { useRef, useState, useEffect } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { ArrowDown, Building2, Users, Award, Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '../ui/button';
+import { useTranslation } from 'react-i18next';
 
-const LogoBuild3D = lazy(() => import('../three/LogoBuild3D'));
 interface HeroFloorProps {
   onScrollToNext?: () => void;
 }
 
-const stats = [
-  { icon: Building2, value: '150+', label: 'Projects Completed' },
-  { icon: Users, value: '80+', label: 'Satisfied Clients' },
-  { icon: Award, value: '15+', label: 'Years Experience' },
-];
-
 const HeroFloor = ({ onScrollToNext }: HeroFloorProps) => {
-  return (
-    <section className="relative min-h-screen bg-white overflow-hidden">
-      {/* Subtle gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-50/50 via-white to-slate-50/30 pointer-events-none" />
+  const { t } = useTranslation();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
 
-      {/* Content */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 py-20">
-        <div className="max-w-6xl mx-auto text-center">
-          
-          {/* 3D Model Container - Prominent and Above Title */}
+  // Scroll-linked parallax and fade effects
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"]
+  });
+
+  const textOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  const textY = useTransform(scrollYProgress, [0, 0.8], [0, -80]);
+  const videoScale = useTransform(scrollYProgress, [0, 1], [1.02, 1.15]);
+  const overlayOpacity = useTransform(scrollYProgress, [0, 0.8], [0.4, 0.75]);
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play().catch(err => console.log("Video play error:", err));
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const stats = [
+    { icon: Building2, value: '150+', label: t('hero.completed_projects') },
+    { icon: Users, value: '80+', label: t('hero.satisfied_clients') },
+    { icon: Award, value: '15+', label: t('hero.years_experience') },
+  ];
+
+  return (
+    <section 
+      id="home" 
+      ref={containerRef}
+      className="relative min-h-screen w-full bg-black overflow-hidden flex items-center justify-center"
+    >
+      {/* 1. Cinematic Background Video */}
+      <motion.div 
+        style={{ scale: videoScale }}
+        className="absolute inset-0 w-full h-full z-0 pointer-events-none"
+      >
+        <video
+          ref={videoRef}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover opacity-85"
+        >
+          <source src="/assets/video_header.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </motion.div>
+
+      {/* 2. Color Contrast Overlay Grids (Responsive Premium Scrims) */}
+      <motion.div 
+        style={{ opacity: overlayOpacity }}
+        className="absolute inset-0 z-0 pointer-events-none ltr:hero-scrim-ltr rtl:hero-scrim-rtl" 
+      />
+      
+      {/* 3. Structural Blueprint grid lines (fine overlay) */}
+      <div className="absolute inset-0 opacity-[0.06] pointer-events-none bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] bg-[size:5rem_5rem] z-0" />
+      
+      {/* 4. Hero Content */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 py-32 flex flex-col justify-between min-h-screen">
+        
+        {/* Empty spacing for top padding under fixed navbar */}
+        <div className="h-16" />
+
+        {/* Text area */}
+        <motion.div 
+          style={{ opacity: textOpacity, y: textY }}
+          className="text-start max-w-4xl mt-auto mb-auto"
+        >
+          {/* Badge */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
-            className="relative w-full max-w-lg mx-auto h-[380px] sm:h-[420px] mb-8"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-primary/25 border border-primary/40 text-primary-light text-[11px] font-bold uppercase tracking-widest mb-8 backdrop-blur-md"
           >
-            <Suspense fallback={
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="w-20 h-20 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-              </div>
-            }>
-              <LogoBuild3D />
-            </Suspense>
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span>{t('hero.tagline')}</span>
           </motion.div>
 
-          {/* Headline - SEO Optimized */}
+          {/* Heading */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold text-slate-900 leading-[1.1] mb-4"
+            transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
+            className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-extrabold text-white leading-[1.02] mb-6 tracking-tighter"
           >
-            Premium{' '}
-            <span className="text-primary">Architectural Design</span>
-            <br />
-            & Engineering Solutions
+            {t('hero.tagline')}
+            <span className="text-gradient-primary font-normal font-display block mt-3 tracking-normal">
+              {t('hero.tagline_span')}
+            </span>
           </motion.h1>
 
-          {/* Subtitle - Keywords */}
+          {/* Subtitle / Pillars */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-lg sm:text-xl text-slate-600 font-medium mb-4"
+            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+            className="text-base sm:text-xl text-white font-medium mb-6 border-s-4 border-primary ps-4 tracking-wide max-w-3xl"
           >
-            Structural Engineering • Construction Management • MEP Design
+            {t('hero.subtitle')}
           </motion.p>
 
           {/* Description */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-base sm:text-lg text-slate-500 max-w-2xl mx-auto mb-10 leading-relaxed"
+            transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+            className="text-slate-200 text-sm sm:text-lg max-w-2xl mb-10 leading-relaxed font-normal"
           >
-            Transform your vision into extraordinary architectural masterpieces. 
-            From project planning to renovation, we deliver comprehensive engineering 
-            solutions for residential and commercial projects.
+            {t('hero.desc')}
           </motion.p>
 
           {/* CTA Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="flex flex-wrap justify-center gap-4 mb-14"
+            transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+            className="flex flex-wrap gap-4"
           >
             <Button 
               size="lg" 
-              className="bg-primary hover:bg-primary/90 text-white font-semibold px-8 py-6 text-lg shadow-xl shadow-primary/25 group"
+              className="bg-primary hover:bg-primary-dark text-white font-bold text-[11px] uppercase tracking-widest px-8 py-7 shadow-xl shadow-primary/25 group transition-all duration-300"
               onClick={onScrollToNext}
             >
-              <span>Explore Services</span>
-              <ArrowDown className="ml-2 w-5 h-5 group-hover:translate-y-1 transition-transform" />
+              <span>{t('hero.explore')}</span>
+              <ArrowDown className="ms-2 w-4 h-4 group-hover:translate-y-1.5 transition-transform" />
             </Button>
             <Button 
               variant="outline" 
               size="lg" 
-              className="border-2 border-slate-300 text-slate-700 hover:bg-slate-100 hover:border-slate-400 font-semibold px-8 py-6 text-lg"
+              className="border-2 border-white/20 bg-white/5 text-white hover:bg-white hover:text-black hover:border-white font-bold text-[11px] uppercase tracking-widest px-8 py-7 backdrop-blur-sm transition-all duration-300"
+              asChild
             >
-              View Projects
+              <a href="#studio">{t('hero.projects')}</a>
             </Button>
           </motion.div>
 
-          {/* Stats */}
+          {/* Repositioned & Redesigned Stats Panel */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex flex-wrap justify-center gap-6 md:gap-10"
+            transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
+            className="relative overflow-hidden bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 sm:p-8 mt-12 max-w-3xl shadow-[0_24px_60px_rgba(0,0,0,0.5)] z-10"
           >
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.7 + index * 0.1 }}
-                className="flex items-center gap-3 px-5 py-4 rounded-2xl bg-white border border-slate-200 shadow-lg hover:shadow-xl hover:border-primary/30 transition-all duration-300"
-              >
-                <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-lg">
-                  <stat.icon className="w-6 h-6 text-white" />
-                </div>
-                <div className="text-left">
-                  <div className="text-2xl font-bold text-slate-900 font-display">
-                    {stat.value}
-                  </div>
-                  <div className="text-sm text-slate-600">
-                    {stat.label}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+            {/* Dot-grid background */}
+            <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.07)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none z-0 opacity-80" />
+            
+            {/* Glowing corner gradient */}
+            <div className="absolute -top-12 -left-12 w-24 h-24 bg-primary/20 rounded-full blur-2xl pointer-events-none z-0" />
+            
+            <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 divide-y sm:divide-y-0 sm:divide-x rtl:sm:divide-x-reverse divide-white/10">
+              {stats.map((stat, index) => {
+                const Icon = stat.icon;
+                return (
+                  <motion.div 
+                    key={index} 
+                    className="flex flex-col items-start pt-4 sm:pt-0 sm:px-6 first:pt-0 first:ps-0 last:pe-0 group"
+                    whileHover={{ y: -2 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="flex items-center gap-2.5 mb-2">
+                      <div className="p-1.5 rounded-lg bg-white/5 border border-white/10 text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <span className="text-2xl sm:text-3xl font-extrabold text-white font-display tracking-tight">
+                        {stat.value}
+                      </span>
+                    </div>
+                    <span className="text-[10px] sm:text-xs text-slate-400 font-bold tracking-widest uppercase mt-0.5 block leading-relaxed">
+                      {stat.label}
+                    </span>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </motion.div>
+        </motion.div>
+
+        {/* Footer info (Video Controls Only) */}
+        <div className="flex items-center justify-between border-t border-white/10 pt-8 pb-4 mt-auto">
+          <div className="text-[10px] sm:text-xs text-slate-400 font-medium uppercase tracking-widest">
+            {t('hero.tagline_span')}
+          </div>
+          
+          {/* Media Controls for Background Video */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="flex items-center gap-3 bg-white/5 border border-white/15 px-3 py-1.5 rounded-full backdrop-blur-md"
+          >
+            <button
+              onClick={togglePlay}
+              className="p-2 text-white/75 hover:text-white hover:bg-white/10 rounded-full transition-all"
+              title={isPlaying ? "Pause Background Video" : "Play Background Video"}
+            >
+              {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+            </button>
+            <div className="w-px h-4 bg-white/25" />
+            <button
+              onClick={toggleMute}
+              className="p-2 text-white/75 hover:text-white hover:bg-white/10 rounded-full transition-all"
+              title={isMuted ? "Unmute Background Sound" : "Mute Background Sound"}
+            >
+              {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            </button>
           </motion.div>
         </div>
       </div>
 
-      {/* Scroll indicator */}
+      {/* Parallax bottom indicator */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
+        style={{ opacity: textOpacity }}
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 hidden md:block cursor-pointer"
+        onClick={onScrollToNext}
       >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
-          className="flex flex-col items-center gap-2 text-slate-500 cursor-pointer hover:text-primary transition-colors"
-          onClick={onScrollToNext}
-        >
-          <span className="text-xs font-medium uppercase tracking-widest">Scroll to Explore</span>
-          <div className="w-6 h-10 rounded-full border-2 border-current flex items-start justify-center p-1">
+        <div className="flex flex-col items-center gap-2 text-white/40 hover:text-primary transition-colors">
+          <span className="text-[10px] font-bold uppercase tracking-widest">{t('hero.scroll')}</span>
+          <div className="w-5 h-8 rounded-full border border-white/30 flex items-start justify-center p-1">
             <motion.div
-              animate={{ y: [0, 12, 0] }}
+              animate={{ y: [0, 8, 0] }}
               transition={{ repeat: Infinity, duration: 1.5 }}
-              className="w-1.5 h-3 rounded-full bg-primary"
+              className="w-1 h-1.5 rounded-full bg-primary"
             />
           </div>
-        </motion.div>
+        </div>
       </motion.div>
     </section>
   );

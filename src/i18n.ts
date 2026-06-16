@@ -539,8 +539,36 @@ const resources = {
           walnut: 'Planches de Noyer Américain',
           concrete: 'Dalle de Béton Brossé',
           marble: 'Marbre Calacatta Poli d\'Italie',
-             },
-      portfolio: {de Marbre',
+          terracotta: 'Carreaux de Terre Cuite Vernissée',
+          terrazzo: 'Mosaïque Terrazzo Moderne',
+          tatami: 'Nattes de Tatami Traditionnelles'
+        },
+        furniture: {
+          sofa: 'Canapé Incurvé en Tissu Bouclé',
+          chair: 'Fauteuil Lounge Contemporain',
+          table: 'Table Basse en Bois Brut Sauvage',
+          plant: 'Ficus Fiddle-Leaf Fig Magnifique',
+          lamp: 'Lampadaire Minimaliste en Laiton',
+          rug: 'Tapis Épais en Laine Vierge',
+          bed: 'Lit Plateforme en Lin Pur',
+          art: 'Cadre d\'Art Abstrait Moderne',
+          kitchen: 'Îlot de Cuisine en Cascade de Marbre',
+          desk: 'Bureau de Direction en Noyer'
+        },
+        lighting: {
+          morning: 'Heure Dorée Matinale',
+          midday: 'Lumière Neutre Épurée',
+          sunset: 'Éclat du Coucher de Soleil',
+          evening: 'Ambiance Feutrée de Soirée'
+        },
+        templates: {
+          japandi: 'Salon Minimaliste Japandi Épuré',
+          industrial: 'Bureau Créatif en Loft Industriel',
+          biophilic: 'Retraite de Chambre Biophilique',
+          classical: 'Salon Néo-Classique Contemporain',
+          hygge: 'Bibliothèque Cosy Scandi Hygge',
+          midcentury: 'Cabinet de Travail Mid-Century',
+          kitchen: 'Cuisine Ultra-Moderne & Îlot de Marbre',
           mediterranean: 'Terrasse Ensoleillée Méditerranéenne',
           artdeco: 'Salon Lounge de Cocktail Art Deco',
           tea: 'Espace de Thé Zen Traditionnel Japonais'
@@ -610,37 +638,6 @@ const resources = {
           f1: 'Études de Faisabilité',
           f2: 'Audit de Conformité',
           f3: 'Estimation des Coûts',
-        },
-      },
-      builder: {
-        title: 'Studio Virtuel de Personnalisation',
-        desc: 'Visualisez et personnalisez votre espace intérieur en temps réel. Modifiez la couleur des murs, le revêtement de sol et le style de mobilier.',
-        wall_color: 'Peinture Murale',
-        floor_finish: 'Revêtement de Sol',
-        furniture_style: 'Style du Mobilier',
-        reset: 'Réinitialiser le Design',
-        save: 'Sauvegarder le Concept',
-        colors: {
-          charcoal: 'Anthracite Élégant',
-          terracotta: 'Terracotta Doux',
-          beige: 'Beige Chaleureux',
-          sage: 'Vert Sauge Apaisant',
-        },
-        floors: {
-          oak: 'Chêne Classique',
-          walnut: 'Noyer Foncé Noble',
-          concrete: 'Dalle Béton Moderne',
-          marble: 'Marbre Travertin Prestigieux',
-        },
-        styles: {
-          modern: 'Luxe Moderne',
-          classic: 'Classique Confort',
-          minimalist: 'Minimaliste Japandi',
-        },
-        styles_desc: {
-          modern: 'Velours somptueux, détails en laiton et lignes géométriques.',
-          classic: 'Tissus capitonnés, finitions noyer et luminaires chaleureux.',
-          minimalist: 'Matériaux naturels, assises basses et simplicité épurée.',
         },
       },
       portfolio: {

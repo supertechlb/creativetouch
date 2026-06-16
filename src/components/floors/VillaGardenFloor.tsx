@@ -1,69 +1,82 @@
 import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
-
-const categories = ['All Projects', 'Residential', 'Commercial', 'Renovation'];
-
-const projects = [
-  {
-    id: 1,
-    title: 'Modern Luxury Villa',
-    category: 'Residential',
-    location: 'Beverly Hills, CA',
-    image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&q=80',
-    description: 'Contemporary residential design with sustainable features',
-  },
-  {
-    id: 2,
-    title: 'Corporate Headquarters',
-    category: 'Commercial',
-    location: 'Downtown Manhattan, NY',
-    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80',
-    description: 'State-of-the-art commercial office complex',
-  },
-  {
-    id: 3,
-    title: 'Heritage Home Restoration',
-    category: 'Renovation',
-    location: 'San Francisco, CA',
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
-    description: 'Careful restoration preserving historical integrity',
-  },
-  {
-    id: 4,
-    title: 'Waterfront Residence',
-    category: 'Residential',
-    location: 'Miami Beach, FL',
-    image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80',
-    description: 'Oceanfront luxury with panoramic views',
-  },
-  {
-    id: 5,
-    title: 'Tech Innovation Center',
-    category: 'Commercial',
-    location: 'Silicon Valley, CA',
-    image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80',
-    description: 'Modern workspace designed for innovation',
-  },
-  {
-    id: 6,
-    title: 'Historic Loft Conversion',
-    category: 'Renovation',
-    location: 'Brooklyn, NY',
-    image: 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=800&q=80',
-    description: 'Industrial to residential transformation',
-  },
-];
+import { useTranslation } from 'react-i18next';
 
 const VillaGardenFloor = () => {
+  const { t, i18n } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
-  const [activeCategory, setActiveCategory] = useState('All Projects');
 
-  const filteredProjects = activeCategory === 'All Projects' 
+  const categories = [
+    t('portfolio.all'),
+    t('portfolio.residential'),
+    t('portfolio.commercial'),
+    t('portfolio.renovation')
+  ];
+
+  const projects = [
+    {
+      id: 1,
+      title: t('portfolio.project1.title'),
+      category: t('portfolio.residential'),
+      location: t('portfolio.project1.location'),
+      image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&q=80',
+      description: t('portfolio.project1.desc'),
+    },
+    {
+      id: 2,
+      title: t('portfolio.project2.title'),
+      category: t('portfolio.commercial'),
+      location: t('portfolio.project2.location'),
+      image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80',
+      description: t('portfolio.project2.desc'),
+    },
+    {
+      id: 3,
+      title: t('portfolio.project3.title'),
+      category: t('portfolio.renovation'),
+      location: t('portfolio.project3.location'),
+      image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+      description: t('portfolio.project3.desc'),
+    },
+    {
+      id: 4,
+      title: t('portfolio.project4.title'),
+      category: t('portfolio.residential'),
+      location: t('portfolio.project4.location'),
+      image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80',
+      description: t('portfolio.project4.desc'),
+    },
+    {
+      id: 5,
+      title: t('portfolio.project5.title'),
+      category: t('portfolio.commercial'),
+      location: t('portfolio.project5.location'),
+      image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80',
+      description: t('portfolio.project5.desc'),
+    },
+    {
+      id: 6,
+      title: t('portfolio.project6.title'),
+      category: t('portfolio.renovation'),
+      location: t('portfolio.project6.location'),
+      image: 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=800&q=80',
+      description: t('portfolio.project6.desc'),
+    },
+  ];
+
+  const [activeCategory, setActiveCategory] = useState(categories[0]);
+
+  // Sync activeCategory default when language switches
+  useEffect(() => {
+    setActiveCategory(t('portfolio.all'));
+  }, [i18n.language]);
+
+  const filteredProjects = activeCategory === t('portfolio.all') 
     ? projects 
     : projects.filter(p => p.category === activeCategory);
 
@@ -71,7 +84,7 @@ const VillaGardenFloor = () => {
     <section 
       id="studio" 
       ref={ref}
-      className="relative py-20 lg:py-28 overflow-hidden"
+      className="relative py-20 lg:py-28 overflow-hidden text-start"
     >
       {/* Background Image - Luxury Villa */}
       <div 
@@ -81,7 +94,7 @@ const VillaGardenFloor = () => {
         }}
       />
       {/* Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-900/70 via-slate-900/60 to-slate-900/70 backdrop-blur-[1px]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/70 to-slate-900/80 backdrop-blur-[1px]" />
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
@@ -93,13 +106,10 @@ const VillaGardenFloor = () => {
           className="text-center mb-12"
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-white mb-4">
-            Featured{' '}
-            <span className="text-primary">Residential & Commercial</span>
-            {' '}Projects
+            {t('portfolio.title')}
           </h2>
-          <p className="text-lg text-slate-200 max-w-2xl mx-auto">
-            Explore our portfolio of award-winning architectural designs and 
-            engineering achievements across diverse project types.
+          <p className="text-lg text-slate-300 max-w-2xl mx-auto">
+            {t('portfolio.desc')}
           </p>
         </motion.div>
 
@@ -149,8 +159,8 @@ const VillaGardenFloor = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                   
                   {/* Category Badge */}
-                  <div className="absolute top-4 left-4">
-                    <span className="px-3 py-1 bg-primary text-white text-sm font-semibold rounded-full shadow-lg">
+                  <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4">
+                    <span className="px-3 py-1 bg-primary text-white text-xs font-semibold rounded-full shadow-lg">
                       {project.category}
                     </span>
                   </div>
@@ -161,8 +171,8 @@ const VillaGardenFloor = () => {
                       size="sm"
                       className="bg-white text-slate-900 hover:bg-slate-100 font-semibold shadow-xl"
                     >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      View Project
+                      <ExternalLink className="w-4 h-4 me-2" />
+                      {t('portfolio.view_project')}
                     </Button>
                   </div>
                 </div>
@@ -172,7 +182,7 @@ const VillaGardenFloor = () => {
                   <h3 className="text-lg font-bold text-slate-900 mb-1 group-hover:text-primary transition-colors">
                     {project.title}
                   </h3>
-                  <p className="text-sm text-slate-500 mb-2">{project.location}</p>
+                  <p className="text-xs text-slate-500 mb-2">{project.location}</p>
                   <p className="text-sm text-slate-600">{project.description}</p>
                 </div>
               </Card>
@@ -192,7 +202,7 @@ const VillaGardenFloor = () => {
             variant="outline"
             className="bg-white/10 text-white border-white/30 hover:bg-white hover:text-slate-900 font-semibold px-10 py-6 text-lg"
           >
-            View Full Portfolio
+            {t('portfolio.view_all')}
           </Button>
         </motion.div>
       </div>

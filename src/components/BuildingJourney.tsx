@@ -1,30 +1,38 @@
 import { useRef, useCallback } from 'react';
 import HeroFloor from './floors/HeroFloor';
+import ServicesSplit from './ServicesSplit';
 import LivingRoomFloor from './floors/LivingRoomFloor';
+import DecorBuilder from './DecorBuilder';
 import VillaGardenFloor from './floors/VillaGardenFloor';
 import TowerContactFloor from './floors/TowerContactFloor';
 
 const BuildingJourney = () => {
-  const servicesRef = useRef<HTMLDivElement>(null);
+  const splitRef = useRef<HTMLDivElement>(null);
 
-  const scrollToServices = useCallback(() => {
-    servicesRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToSplit = useCallback(() => {
+    splitRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
   return (
     <div className="relative">
-      {/* Floor 1: Hero / Terrace Level */}
-      <HeroFloor onScrollToNext={scrollToServices} />
+      {/* Level 1: Hero / Entrance */}
+      <HeroFloor onScrollToNext={scrollToSplit} />
 
-      {/* Floor 2: Living Room (Services) */}
-      <div ref={servicesRef}>
-        <LivingRoomFloor />
+      {/* Level 2: Business Split (Engineering vs. Studio) */}
+      <div ref={splitRef}>
+        <ServicesSplit />
       </div>
 
-      {/* Floor 3: Villa Garden (Portfolio) */}
+      {/* Level 3: Detailed Engineering Services */}
+      <LivingRoomFloor />
+
+      {/* Level 4: Design Studio - Interactive Decor Builder (HIDDEN) */}
+      {/* <DecorBuilder /> */}
+
+      {/* Level 5: Featured Projects Portfolio */}
       <VillaGardenFloor />
 
-      {/* Floor 4: Tower (Contact) */}
+      {/* Level 6: Contact & Consultation */}
       <TowerContactFloor />
     </div>
   );

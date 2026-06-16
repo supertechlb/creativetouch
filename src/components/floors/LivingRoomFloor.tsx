@@ -1,5 +1,4 @@
-import { motion } from 'framer-motion';
-import { useInView } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { 
   Building2, 
@@ -8,86 +7,100 @@ import {
   Wrench, 
   Home, 
   Lightbulb,
-  ArrowRight
+  ArrowRight,
+  ArrowLeft
 } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
-
-const services = [
-  {
-    icon: Building2,
-    title: 'Architectural Design',
-    description: 'Custom architectural solutions for residential and commercial projects, blending aesthetics with functionality.',
-    features: ['Concept Development', 'Design Visualization', 'Building Permits'],
-  },
-  {
-    icon: Ruler,
-    title: 'Structural Engineering',
-    description: 'Expert structural analysis and design ensuring safety, durability, and code compliance for all building types.',
-    features: ['Load Analysis', 'Foundation Design', 'Seismic Assessment'],
-  },
-  {
-    icon: HardHat,
-    title: 'Construction Management',
-    description: 'End-to-end project oversight from groundbreaking to completion, ensuring on-time and on-budget delivery.',
-    features: ['Project Planning', 'Quality Control', 'Timeline Management'],
-  },
-  {
-    icon: Lightbulb,
-    title: 'MEP Design',
-    description: 'Comprehensive mechanical, electrical, and plumbing systems design for optimal building performance.',
-    features: ['HVAC Systems', 'Electrical Planning', 'Plumbing Layout'],
-  },
-  {
-    icon: Home,
-    title: 'Renovation Services',
-    description: 'Transform existing spaces with expert renovation and remodeling solutions that maximize value.',
-    features: ['Space Optimization', 'Modern Upgrades', 'Heritage Restoration'],
-  },
-  {
-    icon: Wrench,
-    title: 'Consulting Services',
-    description: 'Professional engineering consultation for feasibility studies, code compliance, and project optimization.',
-    features: ['Feasibility Studies', 'Code Review', 'Cost Estimation'],
-  },
-];
+import { useTranslation } from 'react-i18next';
 
 const LivingRoomFloor = () => {
+  const { t, i18n } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const isRtl = i18n.language === 'ar';
+
+  const services = [
+    {
+      icon: Building2,
+      code: 'ARCH-01',
+      title: t('services.architectural.title'),
+      description: t('services.architectural.desc'),
+      features: [t('services.architectural.f1'), t('services.architectural.f2'), t('services.architectural.f3')],
+    },
+    {
+      icon: Ruler,
+      code: 'STRUC-02',
+      title: t('services.structural.title'),
+      description: t('services.structural.desc'),
+      features: [t('services.structural.f1'), t('services.structural.f2'), t('services.structural.f3')],
+    },
+    {
+      icon: HardHat,
+      code: 'CONST-03',
+      title: t('services.construction.title'),
+      description: t('services.construction.desc'),
+      features: [t('services.construction.f1'), t('services.construction.f2'), t('services.construction.f3')],
+    },
+    {
+      icon: Lightbulb,
+      code: 'MEP-04',
+      title: t('services.mep.title'),
+      description: t('services.mep.desc'),
+      features: [t('services.mep.f1'), t('services.mep.f2'), t('services.mep.f3')],
+    },
+    {
+      icon: Home,
+      code: 'RENOV-05',
+      title: t('services.renovation.title'),
+      description: t('services.renovation.desc'),
+      features: [t('services.renovation.f1'), t('services.renovation.f2'), t('services.renovation.f3')],
+    },
+    {
+      icon: Wrench,
+      code: 'CONSULT-06',
+      title: t('services.consulting.title'),
+      description: t('services.consulting.desc'),
+      features: [t('services.consulting.f1'), t('services.consulting.f2'), t('services.consulting.f3')],
+    },
+  ];
 
   return (
     <section 
       id="services" 
       ref={ref}
-      className="relative py-20 lg:py-28 overflow-hidden"
+      className="relative py-24 lg:py-32 overflow-hidden text-start bg-slate-950"
     >
-      {/* Background Image - Living Room */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=2000&q=80')`,
-        }}
-      />
-      {/* Overlay for readability */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+      {/* 1. Technical blueprint background grid */}
+      <div className="absolute inset-0 opacity-[0.06] pointer-events-none bg-[linear-gradient(to_right,#00d2ff_1px,transparent_1px),linear-gradient(to_bottom,#00d2ff_1px,transparent_1px)] bg-[size:3rem_3rem]" />
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[linear-gradient(to_right,#00d2ff_2px,transparent_2px),linear-gradient(to_bottom,#00d2ff_2px,transparent_2px)] bg-[size:15rem_15rem]" />
+
+      {/* Decorative architectural markers */}
+      <div className="absolute left-6 top-8 text-[10px] font-mono text-cyan-500/20 select-none">
+        [PLAN_ID // 8820-CT-SERVICELINE]
+      </div>
+      <div className="absolute right-6 bottom-8 text-[10px] font-mono text-cyan-500/20 select-none">
+        [SCALE: 1:25 // SECTION A-A]
+      </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="relative z-10 max-w-7xl mx-auto px-6">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-14"
+          transition={{ duration: 0.8 }}
+          className="text-center mb-20"
         >
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-white mb-4">
-            Our Engineering &{' '}
-            <span className="text-primary">Architecture Services</span>
+          <span className="font-mono text-xs text-cyan-400 uppercase tracking-widest block mb-4">
+            [TECHNICAL INDEX]
+          </span>
+          <h2 className="text-4xl sm:text-5xl font-mono font-bold text-white mb-6">
+            {t('services.title')}
           </h2>
-          <p className="text-lg text-slate-200 max-w-2xl mx-auto">
-            Comprehensive solutions for every stage of your construction project, 
-            from initial concept to final delivery.
+          <div className="w-20 h-0.5 bg-cyan-500 mx-auto mb-6" />
+          <p className="text-lg text-slate-400 max-w-2xl mx-auto font-light">
+            {t('services.desc')}
           </p>
         </motion.div>
 
@@ -98,42 +111,61 @@ const LivingRoomFloor = () => {
               key={index}
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
             >
-              <Card className="h-full bg-white border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 group hover:-translate-y-1">
-                <CardContent className="p-6">
+              <Card className="h-full bg-slate-900/60 border border-slate-800 hover:border-cyan-500/50 hover:shadow-cyan-950/15 hover:shadow-2xl transition-all duration-300 group hover:-translate-y-1 overflow-hidden relative">
+                
+                {/* Visual CAD boundary corner markers */}
+                <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-slate-700 group-hover:border-cyan-400 transition-colors" />
+                <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-slate-700 group-hover:border-cyan-400 transition-colors" />
+                <div className="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-slate-700 group-hover:border-cyan-400 transition-colors" />
+                <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-slate-700 group-hover:border-cyan-400 transition-colors" />
+
+                <CardContent className="p-8">
+                  {/* Module Code */}
+                  <div className="font-mono text-[10px] text-cyan-500/60 mb-4 tracking-wider flex justify-between items-center">
+                    <span>{service.code}</span>
+                    <span className="w-1.5 h-1.5 bg-slate-800 rounded-full group-hover:bg-cyan-500 group-hover:shadow-[0_0_6px_#22d3ee] transition-all" />
+                  </div>
+
                   {/* Icon */}
-                  <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <service.icon className="w-7 h-7 text-white" />
+                  <div className="w-14 h-14 rounded-xl bg-slate-800 flex items-center justify-center mb-6 shadow-inner border border-slate-750 group-hover:border-cyan-500/30 group-hover:bg-cyan-950/20 transition-all duration-300">
+                    <service.icon className="w-6 h-6 text-slate-300 group-hover:text-cyan-400 transition-colors" />
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-primary transition-colors">
+                  <h3 className="text-xl font-mono font-bold text-white mb-4 group-hover:text-cyan-300 transition-colors">
                     {service.title}
                   </h3>
 
                   {/* Description */}
-                  <p className="text-slate-600 mb-4 leading-relaxed">
+                  <p className="text-slate-400 mb-6 leading-relaxed text-sm font-light">
                     {service.description}
                   </p>
 
+                  <div className="h-px bg-slate-800/80 mb-6" />
+
                   {/* Features */}
-                  <ul className="space-y-2 mb-5">
+                  <ul className="space-y-3 mb-6 font-mono text-[13px] text-slate-400">
                     {service.features.map((feature, i) => (
-                      <li key={i} className="flex items-center gap-2 text-sm text-slate-700">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        {feature}
+                      <li key={i} className="flex items-center gap-3">
+                        <div className="w-1 h-1 bg-cyan-500" />
+                        <span className="group-hover:text-slate-300 transition-colors">{feature}</span>
                       </li>
                     ))}
                   </ul>
 
-                  {/* Learn More */}
+                  {/* Technical Link */}
                   <Button 
                     variant="ghost" 
-                    className="p-0 h-auto text-primary hover:text-primary/80 font-semibold group/btn"
+                    className="p-0 h-auto text-cyan-400 hover:text-cyan-300 font-mono text-xs font-semibold group/btn tracking-wider hover:bg-transparent"
                   >
-                    Learn More 
-                    <ArrowRight className="w-4 h-4 ml-1 group-hover/btn:translate-x-1 transition-transform" />
+                    <span>{t('services.learn_more')}</span>
+                    {isRtl ? (
+                      <ArrowLeft className="w-3.5 h-3.5 ms-1.5 group-hover/btn:-translate-x-1 transition-transform" />
+                    ) : (
+                      <ArrowRight className="w-3.5 h-3.5 ms-1.5 group-hover/btn:translate-x-1 transition-transform" />
+                    )}
                   </Button>
                 </CardContent>
               </Card>
@@ -141,18 +173,19 @@ const LivingRoomFloor = () => {
           ))}
         </div>
 
-        {/* CTA */}
+        {/* Action Button */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="text-center mt-14"
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="text-center mt-16"
         >
           <Button 
             size="lg" 
-            className="bg-primary hover:bg-primary/90 text-white font-semibold px-10 py-6 text-lg shadow-xl"
+            className="bg-cyan-500 hover:bg-cyan-600 text-white font-mono font-semibold px-10 py-6 text-base shadow-xl shadow-cyan-950/20 rounded-none border border-cyan-400/30"
+            asChild
           >
-            Request a Consultation
+            <a href="#contact">{t('services.req_consultation')}</a>
           </Button>
         </motion.div>
       </div>
